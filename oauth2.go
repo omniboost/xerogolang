@@ -2,6 +2,7 @@ package xerogolang
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -117,8 +118,8 @@ func (p *Oauth2Provider) Remove(session goth.Session, endpoint string, additiona
 }
 
 // Client does pretty much everything
-func (p *Oauth2Provider) Client() *http.Client {
-	return p.config.Client(oauth2.NoContext, p.Token)
+func (p *Oauth2Provider) Client(ctx context.Context) *http.Client {
+	return p.config.Client(ctx, p.Token)
 }
 
 func (p *Oauth2Provider) Config() *oauth2.Config {
@@ -149,7 +150,12 @@ func (p *Oauth2Provider) processRequest(request *http.Request, session goth.Sess
 	var err error
 	var response *http.Response
 
-	response, err = p.Client().Do(request)
+	ctx := request.Context()
+	if p.HTTPClient != nil {
+		ctx = context.WithValue(ctx, oauth2.HTTPClient, p.HTTPClient)
+	}
+
+	response, err = p.Client(ctx).Do(request)
 
 	if p.debug && response != nil {
 		b, err := httputil.DumpResponse(response, true)
