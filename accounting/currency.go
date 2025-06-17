@@ -3,11 +3,11 @@ package accounting
 import (
 	"encoding/json"
 
-	"github.com/XeroAPI/xerogolang"
 	"github.com/markbates/goth"
+	"github.com/omniboost/xerogolang"
 )
 
-//Currency is the local currency set up to be used in Xero
+// Currency is the local currency set up to be used in Xero
 type Currency struct {
 
 	// 3 letter alpha code for the currency – see list of currency codes
@@ -17,7 +17,7 @@ type Currency struct {
 	Description string `json:"Description,omitempty" xml:"Description,omitempty"`
 }
 
-//Currencies is a collection of Currencies
+// Currencies is a collection of Currencies
 type Currencies struct {
 	Currencies []Currency `json:"Currencies,omitempty" xml:"Currency,omitempty"`
 }
@@ -32,8 +32,8 @@ func unmarshalCurrencies(currencyResponseBytes []byte) (*Currencies, error) {
 	return currencyResponse, err
 }
 
-//FindCurrencies will get all currencies
-func FindCurrencies(provider *xerogolang.Provider, session goth.Session) (*Currencies, error) {
+// FindCurrencies will get all currencies
+func FindCurrencies(provider xerogolang.IProvider, session goth.Session) (*Currencies, error) {
 	additionalHeaders := map[string]string{
 		"Accept": "application/json",
 	}

@@ -5,16 +5,17 @@ import (
 	"encoding/xml"
 	"time"
 
-	"github.com/XeroAPI/xerogolang"
-	"github.com/XeroAPI/xerogolang/helpers"
 	"github.com/markbates/goth"
+	"github.com/omniboost/xerogolang"
+	"github.com/omniboost/xerogolang/helpers"
+	"github.com/shopspring/decimal"
 )
 
-//BankTransfer is a record of monies transferred from one bank account to another
+// BankTransfer is a record of monies transferred from one bank account to another
 type BankTransfer struct {
 
 	//
-	Amount float64 `json:"Amount" xml:"Amount"`
+	Amount decimal.Decimal `json:"Amount" xml:"Amount"`
 
 	// The date of the Transfer YYYY-MM-DD
 	Date string `json:"Date,omitempty" xml:"Date,omitempty"`
@@ -23,7 +24,7 @@ type BankTransfer struct {
 	BankTransferID string `json:"BankTransferID,omitempty" xml:"BankTransferID,omitempty"`
 
 	// The currency rate
-	CurrencyRate float64 `json:"CurrencyRate,omitempty" xml:"CurrencyRate,omitempty"`
+	CurrencyRate decimal.Decimal `json:"CurrencyRate,omitempty" xml:"CurrencyRate,omitempty"`
 
 	// The Bank Transaction ID for the source account
 	FromBankTransactionID string `json:"FromBankTransactionID,omitempty" xml:"FromBankTransactionID,omitempty"`
@@ -44,13 +45,13 @@ type BankTransfer struct {
 	ToBankAccount BankAccount `json:"ToBankAccount,omitempty" xml:"ToBankAccount,omitempty"`
 }
 
-//BankTransfers contains a collection of BankTransfers
+// BankTransfers contains a collection of BankTransfers
 type BankTransfers struct {
 	BankTransfers []BankTransfer `json:"BankTransfers" xml:"BankTransfer"`
 }
 
-//The Xero API returns Dates based on the .Net JSON date format available at the time of development
-//We need to convert these to a more usable format - RFC3339 for consistency with what the API expects to recieve
+// The Xero API returns Dates based on the .Net JSON date format available at the time of development
+// We need to convert these to a more usable format - RFC3339 for consistency with what the API expects to recieve
 func (b *BankTransfers) convertDates() error {
 	var err error
 	for n := len(b.BankTransfers) - 1; n >= 0; n-- {
@@ -82,8 +83,8 @@ func unmarshalBankTransfer(bankTransferResponseBytes []byte) (*BankTransfers, er
 	return bankTransferResponse, err
 }
 
-//Create will create bankTransfers given a BankTransfers struct
-func (b *BankTransfers) Create(provider *xerogolang.Provider, session goth.Session) (*BankTransfers, error) {
+// Create will create bankTransfers given a BankTransfers struct
+func (b *BankTransfers) Create(provider xerogolang.IProvider, session goth.Session) (*BankTransfers, error) {
 	additionalHeaders := map[string]string{
 		"Accept":       "application/json",
 		"Content-Type": "application/xml",
@@ -102,11 +103,11 @@ func (b *BankTransfers) Create(provider *xerogolang.Provider, session goth.Sessi
 	return unmarshalBankTransfer(bankTransferResponseBytes)
 }
 
-//FindBankTransfersModifiedSince will get all BankTransfers modified after a specified date.
-//These BankTransfers will not have details like default line items by default.
-//If you need details then add a 'page' querystringParameter and get 100 BankTransfers at a time
-//additional querystringParameters such as where and order can be added as a map
-func FindBankTransfersModifiedSince(provider *xerogolang.Provider, session goth.Session, modifiedSince time.Time, querystringParameters map[string]string) (*BankTransfers, error) {
+// FindBankTransfersModifiedSince will get all BankTransfers modified after a specified date.
+// These BankTransfers will not have details like default line items by default.
+// If you need details then add a 'page' querystringParameter and get 100 BankTransfers at a time
+// additional querystringParameters such as where and order can be added as a map
+func FindBankTransfersModifiedSince(provider xerogolang.IProvider, session goth.Session, modifiedSince time.Time, querystringParameters map[string]string) (*BankTransfers, error) {
 	additionalHeaders := map[string]string{
 		"Accept": "application/json",
 	}
@@ -123,15 +124,15 @@ func FindBankTransfersModifiedSince(provider *xerogolang.Provider, session goth.
 	return unmarshalBankTransfer(bankTransferResponseBytes)
 }
 
-//FindBankTransfers will get all BankTransfers. These BankTransfer will not have details like line items by default.
-//If you need details then add a 'page' querystringParameter and get 100 BankTransfers at a time
-//additional querystringParameters such as where and order can be added as a map
-func FindBankTransfers(provider *xerogolang.Provider, session goth.Session, querystringParameters map[string]string) (*BankTransfers, error) {
+// FindBankTransfers will get all BankTransfers. These BankTransfer will not have details like line items by default.
+// If you need details then add a 'page' querystringParameter and get 100 BankTransfers at a time
+// additional querystringParameters such as where and order can be added as a map
+func FindBankTransfers(provider xerogolang.IProvider, session goth.Session, querystringParameters map[string]string) (*BankTransfers, error) {
 	return FindBankTransfersModifiedSince(provider, session, dayZero, querystringParameters)
 }
 
-//FindBankTransfer will get a single bankTransfer - bankTransferID can be a GUID for an bankTransfer or an bankTransfer number
-func FindBankTransfer(provider *xerogolang.Provider, session goth.Session, bankTransferID string) (*BankTransfers, error) {
+// FindBankTransfer will get a single bankTransfer - bankTransferID can be a GUID for an bankTransfer or an bankTransfer number
+func FindBankTransfer(provider xerogolang.IProvider, session goth.Session, bankTransferID string) (*BankTransfers, error) {
 	additionalHeaders := map[string]string{
 		"Accept": "application/json",
 	}
@@ -144,7 +145,7 @@ func FindBankTransfer(provider *xerogolang.Provider, session goth.Session, bankT
 	return unmarshalBankTransfer(bankTransferResponseBytes)
 }
 
-//GenerateExampleBankTransfer Creates an Example bankTransfer
+// GenerateExampleBankTransfer Creates an Example bankTransfer
 func GenerateExampleBankTransfer() *BankTransfers {
 	bankTransfer := BankTransfer{
 		FromBankAccount: BankAccount{
@@ -153,7 +154,7 @@ func GenerateExampleBankTransfer() *BankTransfers {
 		ToBankAccount: BankAccount{
 			Code: "091",
 		},
-		Amount: 100.00,
+		Amount: decimal.NewFromFloat(100.00),
 	}
 
 	bankTransferCollection := &BankTransfers{

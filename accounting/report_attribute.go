@@ -1,6 +1,6 @@
 package accounting
 
-//ReportAttribute is an element on a report
+// ReportAttribute is an element on a report
 type ReportAttribute struct {
 	//Name is the name of the Attribute
 	Name string `json:"Name,omitempty" xml:"Name,omitempty"`

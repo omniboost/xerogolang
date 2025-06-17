@@ -5,12 +5,13 @@ import (
 	"encoding/xml"
 	"time"
 
-	"github.com/XeroAPI/xerogolang"
-	"github.com/XeroAPI/xerogolang/helpers"
 	"github.com/markbates/goth"
+	"github.com/omniboost/xerogolang"
+	"github.com/omniboost/xerogolang/helpers"
+	"github.com/shopspring/decimal"
 )
 
-//Overpayment is used when a debtor overpays an invoice
+// Overpayment is used when a debtor overpays an invoice
 type Overpayment struct {
 
 	// See Overpayment Types
@@ -32,13 +33,13 @@ type Overpayment struct {
 	LineItems []LineItem `json:"LineItems,omitempty" xml:"LineItems,omitempty"`
 
 	// The subtotal of the overpayment excluding taxes
-	SubTotal float64 `json:"SubTotal,omitempty" xml:"SubTotal,omitempty"`
+	SubTotal decimal.Decimal `json:"SubTotal,omitempty" xml:"SubTotal,omitempty"`
 
 	// The total tax on the overpayment
-	TotalTax float64 `json:"TotalTax,omitempty" xml:"TotalTax,omitempty"`
+	TotalTax decimal.Decimal `json:"TotalTax,omitempty" xml:"TotalTax,omitempty"`
 
 	// The total of the overpayment (subtotal + total tax)
-	Total float64 `json:"Total,omitempty" xml:"Total,omitempty"`
+	Total decimal.Decimal `json:"Total,omitempty" xml:"Total,omitempty"`
 
 	// UTC timestamp of last update to the overpayment
 	UpdatedDateUTC string `json:"UpdatedDateUTC,omitempty" xml:"UpdatedDateUTC,omitempty"`
@@ -50,10 +51,10 @@ type Overpayment struct {
 	OverpaymentID string `json:"OverpaymentID,omitempty" xml:"OverpaymentID,omitempty"`
 
 	// The currency rate for a multicurrency overpayment. If no rate is specified, the XE.com day rate is used
-	CurrencyRate float64 `json:"CurrencyRate,omitempty" xml:"CurrencyRate,omitempty"`
+	CurrencyRate decimal.Decimal `json:"CurrencyRate,omitempty" xml:"CurrencyRate,omitempty"`
 
 	// The remaining credit balance on the overpayment
-	RemainingCredit float64 `json:"RemainingCredit,omitempty" xml:"RemainingCredit,omitempty"`
+	RemainingCredit decimal.Decimal `json:"RemainingCredit,omitempty" xml:"RemainingCredit,omitempty"`
 
 	// See Allocations
 	Allocations []Allocation `json:"Allocations,omitempty" xml:"Allocations,omitempty"`
@@ -65,13 +66,13 @@ type Overpayment struct {
 	HasAttachments bool `json:"HasAttachments,omitempty" xml:"HasAttachments,omitempty"`
 }
 
-//Overpayments is a collection of Overpayments
+// Overpayments is a collection of Overpayments
 type Overpayments struct {
 	Overpayments []Overpayment `json:"Overpayments" xml:"Overpayment"`
 }
 
-//The Xero API returns Dates based on the .Net JSON date format available at the time of development
-//We need to convert these to a more usable format - RFC3339 for consistency with what the API expects to recieve
+// The Xero API returns Dates based on the .Net JSON date format available at the time of development
+// We need to convert these to a more usable format - RFC3339 for consistency with what the API expects to recieve
 func (o *Overpayments) convertDates() error {
 	var err error
 	for n := len(o.Overpayments) - 1; n >= 0; n-- {
@@ -99,11 +100,11 @@ func unmarshalOverpayment(overpaymentResponseBytes []byte) (*Overpayments, error
 	return overpaymentResponse, err
 }
 
-//FindOverpaymentsModifiedSince will get all Overpayments modified after a specified date.
-//These Overpayments will not have details like default line items by default.
-//If you need details then add a 'page' querystringParameter and get 100 Overpayments at a time
-//additional querystringParameters such as where, page, order can be added as a map
-func FindOverpaymentsModifiedSince(provider *xerogolang.Provider, session goth.Session, modifiedSince time.Time, querystringParameters map[string]string) (*Overpayments, error) {
+// FindOverpaymentsModifiedSince will get all Overpayments modified after a specified date.
+// These Overpayments will not have details like default line items by default.
+// If you need details then add a 'page' querystringParameter and get 100 Overpayments at a time
+// additional querystringParameters such as where, page, order can be added as a map
+func FindOverpaymentsModifiedSince(provider xerogolang.IProvider, session goth.Session, modifiedSince time.Time, querystringParameters map[string]string) (*Overpayments, error) {
 	additionalHeaders := map[string]string{
 		"Accept": "application/json",
 	}
@@ -120,15 +121,15 @@ func FindOverpaymentsModifiedSince(provider *xerogolang.Provider, session goth.S
 	return unmarshalOverpayment(overpaymentResponseBytes)
 }
 
-//FindOverpayments will get all Overpayments. These Overpayment will not have details like line items by default.
-//If you need details then add a 'page' querystringParameter and get 100 Overpayments at a time
-//additional querystringParameters such as where, page, order can be added as a map
-func FindOverpayments(provider *xerogolang.Provider, session goth.Session, querystringParameters map[string]string) (*Overpayments, error) {
+// FindOverpayments will get all Overpayments. These Overpayment will not have details like line items by default.
+// If you need details then add a 'page' querystringParameter and get 100 Overpayments at a time
+// additional querystringParameters such as where, page, order can be added as a map
+func FindOverpayments(provider xerogolang.IProvider, session goth.Session, querystringParameters map[string]string) (*Overpayments, error) {
 	return FindOverpaymentsModifiedSince(provider, session, dayZero, querystringParameters)
 }
 
-//FindOverpayment will get a single overpayment - overpaymentID can be a GUID for an overpayment or an overpayment number
-func FindOverpayment(provider *xerogolang.Provider, session goth.Session, overpaymentID string) (*Overpayments, error) {
+// FindOverpayment will get a single overpayment - overpaymentID can be a GUID for an overpayment or an overpayment number
+func FindOverpayment(provider xerogolang.IProvider, session goth.Session, overpaymentID string) (*Overpayments, error) {
 	additionalHeaders := map[string]string{
 		"Accept": "application/json",
 	}
@@ -141,9 +142,9 @@ func FindOverpayment(provider *xerogolang.Provider, session goth.Session, overpa
 	return unmarshalOverpayment(overpaymentResponseBytes)
 }
 
-//Allocate allocates an overpayment - to create an overpayment
-//use the bankTransactions endpoint.
-func (o *Overpayments) Allocate(provider *xerogolang.Provider, session goth.Session, allocations Allocations) (*Overpayments, error) {
+// Allocate allocates an overpayment - to create an overpayment
+// use the bankTransactions endpoint.
+func (o *Overpayments) Allocate(provider xerogolang.IProvider, session goth.Session, allocations Allocations) (*Overpayments, error) {
 	additionalHeaders := map[string]string{
 		"Accept":       "application/json",
 		"Content-Type": "application/xml",

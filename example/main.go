@@ -10,13 +10,13 @@ import (
 
 	"math"
 
-	"github.com/XeroAPI/xerogolang"
-	"github.com/XeroAPI/xerogolang/accounting"
-	"github.com/XeroAPI/xerogolang/auth"
-	"github.com/XeroAPI/xerogolang/helpers"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/sessions"
 	"github.com/markbates/goth"
+	"github.com/omniboost/xerogolang"
+	"github.com/omniboost/xerogolang/accounting"
+	"github.com/omniboost/xerogolang/auth"
+	"github.com/omniboost/xerogolang/helpers"
 )
 
 var (
@@ -49,7 +49,7 @@ func init() {
 	auth.Store = store
 }
 
-//indexHandler dictates what is processed on the index route
+// indexHandler dictates what is processed on the index route
 func indexHandler(res http.ResponseWriter, req *http.Request) {
 	session, err := provider.GetSessionFromStore(req, res)
 	if err != nil || session == nil {
@@ -66,7 +66,7 @@ func indexHandler(res http.ResponseWriter, req *http.Request) {
 	}
 }
 
-//authHandler dictates what is processed on the auth route
+// authHandler dictates what is processed on the auth route
 func authHandler(res http.ResponseWriter, req *http.Request) {
 	// try to get the user without re-authenticating
 	if gothUser, err := auth.CompleteUserAuth(res, req); err == nil {
@@ -77,7 +77,7 @@ func authHandler(res http.ResponseWriter, req *http.Request) {
 	}
 }
 
-//callbackHandler dictates what is processed on the auth/callback route
+// callbackHandler dictates what is processed on the auth/callback route
 func callbackHandler(res http.ResponseWriter, req *http.Request) {
 	user, err := auth.CompleteUserAuth(res, req)
 	if err != nil {
@@ -88,7 +88,7 @@ func callbackHandler(res http.ResponseWriter, req *http.Request) {
 	t.Execute(res, user)
 }
 
-//createHandler dictates what is processed on the create route
+// createHandler dictates what is processed on the create route
 func createHandler(res http.ResponseWriter, req *http.Request) {
 	session, err := provider.GetSessionFromStore(req, res)
 	if err != nil {
@@ -224,14 +224,14 @@ func createHandler(res http.ResponseWriter, req *http.Request) {
 	}
 }
 
-//disconnectHandler dictates what is processed on the disconnect route
+// disconnectHandler dictates what is processed on the disconnect route
 func disconnectHandler(res http.ResponseWriter, req *http.Request) {
 	auth.Logout(res, req)
 	res.Header().Set("Location", "/")
 	res.WriteHeader(http.StatusTemporaryRedirect)
 }
 
-//findHandler dictates what is processed on the find route
+// findHandler dictates what is processed on the find route
 func findHandler(res http.ResponseWriter, req *http.Request) {
 	session, err := provider.GetSessionFromStore(req, res)
 	if err != nil {
@@ -513,7 +513,7 @@ func findHandler(res http.ResponseWriter, req *http.Request) {
 	}
 }
 
-//findAllHandler dictates what is processed on the findall route
+// findAllHandler dictates what is processed on the findall route
 func findAllHandler(res http.ResponseWriter, req *http.Request) {
 	session, err := provider.GetSessionFromStore(req, res)
 	if err != nil {
@@ -920,7 +920,7 @@ func findAllHandler(res http.ResponseWriter, req *http.Request) {
 	}
 }
 
-//findAllPagedHandler dictates what is processed on the findall/{object}/{page} route
+// findAllPagedHandler dictates what is processed on the findall/{object}/{page} route
 func findAllPagedHandler(res http.ResponseWriter, req *http.Request) {
 	session, err := provider.GetSessionFromStore(req, res)
 	if err != nil {
@@ -1141,7 +1141,7 @@ func findAllPagedHandler(res http.ResponseWriter, req *http.Request) {
 	}
 }
 
-//findWhereHandler dictates what is processed on the findwhere route
+// findWhereHandler dictates what is processed on the findwhere route
 func findWhereHandler(res http.ResponseWriter, req *http.Request) {
 	session, err := provider.GetSessionFromStore(req, res)
 	if err != nil {
@@ -1248,7 +1248,7 @@ func findWhereHandler(res http.ResponseWriter, req *http.Request) {
 	}
 }
 
-//findHistoryHandler dictates what is processed on the findhistory route
+// findHistoryHandler dictates what is processed on the findhistory route
 func findHistoryHandler(res http.ResponseWriter, req *http.Request) {
 	session, err := provider.GetSessionFromStore(req, res)
 	if err != nil {
@@ -1260,21 +1260,21 @@ func findHistoryHandler(res http.ResponseWriter, req *http.Request) {
 	object := vars["object"]
 	id := vars["id"]
 	strList := []string{"banktransaction",
-											"banktransfer",
-											"contact",
-											"creditnote",
-											"expenseclaim",
-											"invoice",
-											"item",
-											"overpayment",
-											"payment",
-											"prepayment",
-											"purchaseorder",
-											"receipt",
-											"repeatinginvoice"}
+		"banktransfer",
+		"contact",
+		"creditnote",
+		"expenseclaim",
+		"invoice",
+		"item",
+		"overpayment",
+		"payment",
+		"prepayment",
+		"purchaseorder",
+		"receipt",
+		"repeatinginvoice"}
 	if !helpers.StringInSlice(object, strList) {
-			fmt.Fprintln(res, "History not available on this entity")
-			return
+		fmt.Fprintln(res, "History not available on this entity")
+		return
 	}
 	historyCollection, err := accounting.FindHistoryAndNotes(provider, session, object, id)
 	if err != nil {
@@ -1285,7 +1285,7 @@ func findHistoryHandler(res http.ResponseWriter, req *http.Request) {
 	t.Execute(res, historyCollection.HistoryRecords)
 }
 
-//updateHandler dictates what is processed on the update route
+// updateHandler dictates what is processed on the update route
 func updateHandler(res http.ResponseWriter, req *http.Request) {
 	session, err := provider.GetSessionFromStore(req, res)
 	if err != nil {

@@ -5,12 +5,13 @@ import (
 	"encoding/xml"
 	"time"
 
-	"github.com/XeroAPI/xerogolang"
-	"github.com/XeroAPI/xerogolang/helpers"
 	"github.com/markbates/goth"
+	"github.com/omniboost/xerogolang"
+	"github.com/omniboost/xerogolang/helpers"
+	"github.com/shopspring/decimal"
 )
 
-//Contact is a debtor/customer or creditor/supplier in a Xero Organisation
+// Contact is a debtor/customer or creditor/supplier in a Xero Organisation
 type Contact struct {
 
 	// Xero identifier
@@ -104,7 +105,7 @@ type Contact struct {
 	BatchPayments BatchPayment `json:"BatchPayments,omitempty" xml:"-"`
 
 	// The default discount rate for the contact (read only)
-	Discount float64 `json:"Discount,omitempty" xml:"-"`
+	Discount decimal.Decimal `json:"Discount,omitempty" xml:"-"`
 
 	// The raw AccountsReceivable(sales Contacts) and AccountsPayable(bills) outstanding and overdue amounts, not converted to base currency (read only)
 	Balances Balances `json:"Balances,omitempty" xml:"-"`
@@ -113,27 +114,27 @@ type Contact struct {
 	HasAttachments bool `json:"HasAttachments,omitempty" xml:"HasAttachments,omitempty"`
 }
 
-//Contacts contains a collection of Contacts
+// Contacts contains a collection of Contacts
 type Contacts struct {
 	Contacts []Contact `json:"Contacts" xml:"Contact"`
 }
 
-//Balances are the raw AccountsReceivable(sales invoices) and AccountsPayable(bills)
-//outstanding and overdue amounts, not converted to base currency
+// Balances are the raw AccountsReceivable(sales invoices) and AccountsPayable(bills)
+// outstanding and overdue amounts, not converted to base currency
 type Balances struct {
 	AccountsReceivable Balance `json:"AccountsReceivable,omitempty" xml:"AccountsReceivable,omitempty"`
 	AccountsPayable    Balance `json:"AccountsPayable,omitempty" xml:"AccountsPayable,omitempty"`
 }
 
-//Balance is the raw AccountsReceivable(sales invoices) and AccountsPayable(bills)
-//outstanding and overdue amounts, not converted to base currency
+// Balance is the raw AccountsReceivable(sales invoices) and AccountsPayable(bills)
+// outstanding and overdue amounts, not converted to base currency
 type Balance struct {
-	Outstanding float64 `json:"Outstanding,omitempty" xml:"Outstanding,omitempty"`
-	Overdue     float64 `json:"Overdue,omitempty" xml:"Overdue,omitempty"`
+	Outstanding decimal.Decimal `json:"Outstanding,omitempty" xml:"Outstanding,omitempty"`
+	Overdue     decimal.Decimal `json:"Overdue,omitempty" xml:"Overdue,omitempty"`
 }
 
-//The Xero API returns Dates based on the .Net JSON date format available at the time of development
-//We need to convert these to a more usable format - RFC3339 for consistency with what the API expects to recieve
+// The Xero API returns Dates based on the .Net JSON date format available at the time of development
+// We need to convert these to a more usable format - RFC3339 for consistency with what the API expects to recieve
 func (c *Contacts) convertDates() error {
 	var err error
 	for n := len(c.Contacts) - 1; n >= 0; n-- {
@@ -161,8 +162,8 @@ func unmarshalContact(contactResponseBytes []byte) (*Contacts, error) {
 	return contactResponse, err
 }
 
-//Create will create Contacts given an Contacts struct
-func (c *Contacts) Create(provider *xerogolang.Provider, session goth.Session) (*Contacts, error) {
+// Create will create Contacts given an Contacts struct
+func (c *Contacts) Create(provider xerogolang.IProvider, session goth.Session) (*Contacts, error) {
 	additionalHeaders := map[string]string{
 		"Accept":       "application/json",
 		"Content-Type": "application/xml",
@@ -181,9 +182,9 @@ func (c *Contacts) Create(provider *xerogolang.Provider, session goth.Session) (
 	return unmarshalContact(contactResponseBytes)
 }
 
-//Update will update a Contact given a Contacts struct
-//This will only handle single Contact - you cannot update multiple Contacts in a single call
-func (c *Contacts) Update(provider *xerogolang.Provider, session goth.Session) (*Contacts, error) {
+// Update will update a Contact given a Contacts struct
+// This will only handle single Contact - you cannot update multiple Contacts in a single call
+func (c *Contacts) Update(provider xerogolang.IProvider, session goth.Session) (*Contacts, error) {
 	additionalHeaders := map[string]string{
 		"Accept":       "application/json",
 		"Content-Type": "application/xml",
@@ -202,11 +203,11 @@ func (c *Contacts) Update(provider *xerogolang.Provider, session goth.Session) (
 	return unmarshalContact(contactResponseBytes)
 }
 
-//FindContactsModifiedSince will get all Contacts modified after a specified date.
-//These Contacts will not have details like default account codes and tracking categories.
-//If you need details then then add a 'page' querystringParameter and get 100 Contacts at a time
-//additional querystringParameters such as where, page, order can be added as a map
-func FindContactsModifiedSince(provider *xerogolang.Provider, session goth.Session, modifiedSince time.Time, querystringParameters map[string]string) (*Contacts, error) {
+// FindContactsModifiedSince will get all Contacts modified after a specified date.
+// These Contacts will not have details like default account codes and tracking categories.
+// If you need details then then add a 'page' querystringParameter and get 100 Contacts at a time
+// additional querystringParameters such as where, page, order can be added as a map
+func FindContactsModifiedSince(provider xerogolang.IProvider, session goth.Session, modifiedSince time.Time, querystringParameters map[string]string) (*Contacts, error) {
 	additionalHeaders := map[string]string{
 		"Accept": "application/json",
 	}
@@ -223,15 +224,15 @@ func FindContactsModifiedSince(provider *xerogolang.Provider, session goth.Sessi
 	return unmarshalContact(contactResponseBytes)
 }
 
-//FindContacts will get all Contacts. These Contact will not have details like default accounts.
-//If you need details then then add a 'page' querystringParameter and get 100 Contacts at a time
-//additional querystringParameters such as where, page, order can be added as a map
-func FindContacts(provider *xerogolang.Provider, session goth.Session, querystringParameters map[string]string) (*Contacts, error) {
+// FindContacts will get all Contacts. These Contact will not have details like default accounts.
+// If you need details then then add a 'page' querystringParameter and get 100 Contacts at a time
+// additional querystringParameters such as where, page, order can be added as a map
+func FindContacts(provider xerogolang.IProvider, session goth.Session, querystringParameters map[string]string) (*Contacts, error) {
 	return FindContactsModifiedSince(provider, session, dayZero, querystringParameters)
 }
 
-//FindContact will get a single Contact - ContactID can be a GUID for an Contact or an Contact number
-func FindContact(provider *xerogolang.Provider, session goth.Session, contactID string) (*Contacts, error) {
+// FindContact will get a single Contact - ContactID can be a GUID for an Contact or an Contact number
+func FindContact(provider xerogolang.IProvider, session goth.Session, contactID string) (*Contacts, error) {
 	additionalHeaders := map[string]string{
 		"Accept": "application/json",
 	}
@@ -244,8 +245,8 @@ func FindContact(provider *xerogolang.Provider, session goth.Session, contactID 
 	return unmarshalContact(contactResponseBytes)
 }
 
-//AddToContactGroup will add a collection of Contacts to a supplied contactGroupID
-func (c *Contacts) AddToContactGroup(provider *xerogolang.Provider, session goth.Session, contactGroupID string) (*Contacts, error) {
+// AddToContactGroup will add a collection of Contacts to a supplied contactGroupID
+func (c *Contacts) AddToContactGroup(provider xerogolang.IProvider, session goth.Session, contactGroupID string) (*Contacts, error) {
 	additionalHeaders := map[string]string{
 		"Accept":       "application/json",
 		"Content-Type": "application/xml",
@@ -273,8 +274,8 @@ func (c *Contacts) AddToContactGroup(provider *xerogolang.Provider, session goth
 	return unmarshalContact(contactResponseBytes)
 }
 
-//RemoveFromContactGroup will remove a Contact from a supplied contactGroupID - must be done one at a time.
-func (c *Contacts) RemoveFromContactGroup(provider *xerogolang.Provider, session goth.Session, contactGroupID string) (*Contacts, error) {
+// RemoveFromContactGroup will remove a Contact from a supplied contactGroupID - must be done one at a time.
+func (c *Contacts) RemoveFromContactGroup(provider xerogolang.IProvider, session goth.Session, contactGroupID string) (*Contacts, error) {
 	additionalHeaders := map[string]string{
 		"Accept": "application/json",
 	}
@@ -287,7 +288,7 @@ func (c *Contacts) RemoveFromContactGroup(provider *xerogolang.Provider, session
 	return unmarshalContact(contactResponseBytes)
 }
 
-//GenerateExampleContact Creates an Example contact
+// GenerateExampleContact Creates an Example contact
 func GenerateExampleContact() *Contacts {
 	contact := Contact{
 		Name: "Cosmo Kramer",

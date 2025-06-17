@@ -1,6 +1,6 @@
 package accounting
 
-//Schedule is an element on a Repeating Invoice - do not use it separately
+// Schedule is an element on a Repeating Invoice - do not use it separately
 type Schedule struct {
 
 	// Integer used with the unit e.g. 1 (every 1 week), 2 (every 2 months)

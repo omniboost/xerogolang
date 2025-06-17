@@ -4,11 +4,11 @@ import (
 	"encoding/json"
 	"time"
 
-	"github.com/XeroAPI/xerogolang"
 	"github.com/markbates/goth"
+	"github.com/omniboost/xerogolang"
 )
 
-//User represents a login that has been granted access to the Xero organisation you're connected to
+// User represents a login that has been granted access to the Xero organisation you're connected to
 type User struct {
 
 	// Xero identifier
@@ -33,7 +33,7 @@ type User struct {
 	OrganisationRole string `json:"OrganisationRole,omitempty" xml:"OrganisationRole,omitempty"`
 }
 
-//Users is a collection of Users
+// Users is a collection of Users
 type Users struct {
 	Users []User `json:"Users,omitempty" xml:"User,omitempty"`
 }
@@ -48,9 +48,9 @@ func unmarshalUsers(userResponseBytes []byte) (*Users, error) {
 	return userResponse, err
 }
 
-//FindUsersModifiedSince will get all users modified after a specified date
-//additional querystringParameters such as where and order can be added as a map
-func FindUsersModifiedSince(provider *xerogolang.Provider, session goth.Session, modifiedSince time.Time, querystringParameters map[string]string) (*Users, error) {
+// FindUsersModifiedSince will get all users modified after a specified date
+// additional querystringParameters such as where and order can be added as a map
+func FindUsersModifiedSince(provider xerogolang.IProvider, session goth.Session, modifiedSince time.Time, querystringParameters map[string]string) (*Users, error) {
 	additionalHeaders := map[string]string{
 		"Accept": "application/json",
 	}
@@ -67,14 +67,14 @@ func FindUsersModifiedSince(provider *xerogolang.Provider, session goth.Session,
 	return unmarshalUsers(userResponseBytes)
 }
 
-//FindUsers will get all users
-//additional querystringParameters such as where and order can be added as a map
-func FindUsers(provider *xerogolang.Provider, session goth.Session, querystringParameters map[string]string) (*Users, error) {
+// FindUsers will get all users
+// additional querystringParameters such as where and order can be added as a map
+func FindUsers(provider xerogolang.IProvider, session goth.Session, querystringParameters map[string]string) (*Users, error) {
 	return FindUsersModifiedSince(provider, session, dayZero, querystringParameters)
 }
 
-//FindUser will get a single user - UserID must be a GUID for a user
-func FindUser(provider *xerogolang.Provider, session goth.Session, userID string) (*Users, error) {
+// FindUser will get a single user - UserID must be a GUID for a user
+func FindUser(provider xerogolang.IProvider, session goth.Session, userID string) (*Users, error) {
 	additionalHeaders := map[string]string{
 		"Accept": "application/json",
 	}

@@ -3,12 +3,12 @@ package accounting
 import (
 	"encoding/json"
 
-	"github.com/XeroAPI/xerogolang"
-	"github.com/XeroAPI/xerogolang/helpers"
 	"github.com/markbates/goth"
+	"github.com/omniboost/xerogolang"
+	"github.com/omniboost/xerogolang/helpers"
 )
 
-//BrandingTheme applies structure and visuals to an invoice when printed or sent
+// BrandingTheme applies structure and visuals to an invoice when printed or sent
 type BrandingTheme struct {
 
 	// Xero identifier
@@ -24,13 +24,13 @@ type BrandingTheme struct {
 	CreatedDateUTC string `json:"CreatedDateUTC,omitempty" xml:"CreatedDateUTC,omitempty"`
 }
 
-//BrandingThemes contains a collection of BrandingThemes
+// BrandingThemes contains a collection of BrandingThemes
 type BrandingThemes struct {
 	BrandingThemes []BrandingTheme `json:"BrandingThemes" xml:"BrandingTheme"`
 }
 
-//The Xero API returns Dates based on the .Net JSON date format available at the time of development
-//We need to convert these to a more usable format - RFC3339 for consistency with what the API expects to recieve
+// The Xero API returns Dates based on the .Net JSON date format available at the time of development
+// We need to convert these to a more usable format - RFC3339 for consistency with what the API expects to recieve
 func (b *BrandingThemes) convertDates() error {
 	var err error
 	for n := len(b.BrandingThemes) - 1; n >= 0; n-- {
@@ -58,8 +58,8 @@ func unmarshalBrandingTheme(brandingThemeResponseBytes []byte) (*BrandingThemes,
 	return brandingThemeResponse, err
 }
 
-//FindBrandingThemes will get all BrandingThemes.
-func FindBrandingThemes(provider *xerogolang.Provider, session goth.Session) (*BrandingThemes, error) {
+// FindBrandingThemes will get all BrandingThemes.
+func FindBrandingThemes(provider xerogolang.IProvider, session goth.Session) (*BrandingThemes, error) {
 	additionalHeaders := map[string]string{
 		"Accept": "application/json",
 	}

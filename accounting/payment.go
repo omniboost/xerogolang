@@ -5,12 +5,13 @@ import (
 	"encoding/xml"
 	"time"
 
-	"github.com/XeroAPI/xerogolang"
-	"github.com/XeroAPI/xerogolang/helpers"
 	"github.com/markbates/goth"
+	"github.com/omniboost/xerogolang"
+	"github.com/omniboost/xerogolang/helpers"
+	"github.com/shopspring/decimal"
 )
 
-//Payment details payments against invoices and CreditNotes
+// Payment details payments against invoices and CreditNotes
 type Payment struct {
 
 	// Number of invoice or credit note you are applying payment to e.g. INV-4003
@@ -26,10 +27,10 @@ type Payment struct {
 	Date string `json:"Date,omitempty" xml:"Date,omitempty"`
 
 	// Exchange rate when payment is received. Only used for non base currency invoices and credit notes e.g. 0.7500
-	CurrencyRate float64 `json:"CurrencyRate,omitempty" xml:"CurrencyRate,omitempty"`
+	CurrencyRate decimal.Decimal `json:"CurrencyRate,omitempty" xml:"CurrencyRate,omitempty"`
 
 	// The amount of the payment. Must be less than or equal to the outstanding amount owing on the invoice e.g. 200.00
-	Amount float64 `json:"Amount,omitempty" xml:"Amount,omitempty"`
+	Amount decimal.Decimal `json:"Amount,omitempty" xml:"Amount,omitempty"`
 
 	// An optional description for the payment e.g. Direct Debit
 	Reference string `json:"Reference,omitempty" xml:"Reference,omitempty"`
@@ -50,13 +51,13 @@ type Payment struct {
 	PaymentID string `json:"PaymentID,omitempty" xml:"PaymentID,omitempty"`
 }
 
-//Payments is a collection of Payments
+// Payments is a collection of Payments
 type Payments struct {
 	Payments []Payment `json:"Payments" xml:"Payment"`
 }
 
-//The Xero API returns Dates based on the .Net JSON date format available at the time of development
-//We need to convert these to a more usable format - RFC3339 for consistency with what the API expects to recieve
+// The Xero API returns Dates based on the .Net JSON date format available at the time of development
+// We need to convert these to a more usable format - RFC3339 for consistency with what the API expects to recieve
 func (p *Payments) convertDates() error {
 	var err error
 	for n := len(p.Payments) - 1; n >= 0; n-- {
@@ -88,14 +89,14 @@ func unmarshalPayment(paymentResponseBytes []byte) (*Payments, error) {
 	return paymentResponse, err
 }
 
-//Create will create payments given an Payments struct
-func (p *Payments) Create(provider *xerogolang.Provider, session goth.Session) (*Payments, error) {
+// Create will create payments given an Payments struct
+func (p *Payments) Create(provider xerogolang.IProvider, session goth.Session) (*Payments, error) {
 	additionalHeaders := map[string]string{
 		"Accept":       "application/json",
-		"Content-Type": "application/xml",
+		"Content-Type": "application/json",
 	}
 
-	body, err := xml.MarshalIndent(p, "  ", "	")
+	body, err := json.MarshalIndent(p, "  ", "	")
 	if err != nil {
 		return nil, err
 	}
@@ -108,10 +109,10 @@ func (p *Payments) Create(provider *xerogolang.Provider, session goth.Session) (
 	return unmarshalPayment(paymentResponseBytes)
 }
 
-//Update will update an payment given an Payments struct
-//This will only handle single payment - you cannot update multiple payments in a single call
-//Payments cannot be modified, only created and deleted.
-func (p *Payments) Update(provider *xerogolang.Provider, session goth.Session) (*Payments, error) {
+// Update will update an payment given an Payments struct
+// This will only handle single payment - you cannot update multiple payments in a single call
+// Payments cannot be modified, only created and deleted.
+func (p *Payments) Update(provider xerogolang.IProvider, session goth.Session) (*Payments, error) {
 	additionalHeaders := map[string]string{
 		"Accept":       "application/json",
 		"Content-Type": "application/xml",
@@ -135,9 +136,9 @@ func (p *Payments) Update(provider *xerogolang.Provider, session goth.Session) (
 	return unmarshalPayment(paymentResponseBytes)
 }
 
-//FindPaymentsModifiedSince will get all payments modified after a specified date.
-//additional querystringParameters such as where, page, order can be added as a map
-func FindPaymentsModifiedSince(provider *xerogolang.Provider, session goth.Session, modifiedSince time.Time, querystringParameters map[string]string) (*Payments, error) {
+// FindPaymentsModifiedSince will get all payments modified after a specified date.
+// additional querystringParameters such as where, page, order can be added as a map
+func FindPaymentsModifiedSince(provider xerogolang.IProvider, session goth.Session, modifiedSince time.Time, querystringParameters map[string]string) (*Payments, error) {
 	additionalHeaders := map[string]string{
 		"Accept": "application/json",
 	}
@@ -154,13 +155,13 @@ func FindPaymentsModifiedSince(provider *xerogolang.Provider, session goth.Sessi
 	return unmarshalPayment(paymentResponseBytes)
 }
 
-//FindPayments will get all payments.
-func FindPayments(provider *xerogolang.Provider, session goth.Session, querystringParameters map[string]string) (*Payments, error) {
+// FindPayments will get all payments.
+func FindPayments(provider xerogolang.IProvider, session goth.Session, querystringParameters map[string]string) (*Payments, error) {
 	return FindPaymentsModifiedSince(provider, session, dayZero, querystringParameters)
 }
 
-//FindPayment will get a single payment - paymentID must be a GUID for an payment
-func FindPayment(provider *xerogolang.Provider, session goth.Session, paymentID string) (*Payments, error) {
+// FindPayment will get a single payment - paymentID must be a GUID for an payment
+func FindPayment(provider xerogolang.IProvider, session goth.Session, paymentID string) (*Payments, error) {
 	additionalHeaders := map[string]string{
 		"Accept": "application/json",
 	}
@@ -173,8 +174,8 @@ func FindPayment(provider *xerogolang.Provider, session goth.Session, paymentID 
 	return unmarshalPayment(paymentResponseBytes)
 }
 
-//RemovePayment will get a single payment - paymentID must be a GUID for an payment
-func RemovePayment(provider *xerogolang.Provider, session goth.Session, paymentID string) (*Payments, error) {
+// RemovePayment will get a single payment - paymentID must be a GUID for an payment
+func RemovePayment(provider xerogolang.IProvider, session goth.Session, paymentID string) (*Payments, error) {
 	additionalHeaders := map[string]string{
 		"Accept": "application/json",
 	}
@@ -187,8 +188,8 @@ func RemovePayment(provider *xerogolang.Provider, session goth.Session, paymentI
 	return unmarshalPayment(paymentResponseBytes)
 }
 
-//GenerateExamplePayment Creates an Example payment
-func GenerateExamplePayment(invoiceID string, amount float64) *Payments {
+// GenerateExamplePayment Creates an Example payment
+func GenerateExamplePayment(invoiceID string, amount decimal.Decimal) *Payments {
 	payment := Payment{
 		Date:   helpers.TodayRFC3339(),
 		Amount: amount,

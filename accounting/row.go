@@ -1,6 +1,6 @@
 package accounting
 
-//Row is a Row on a Report
+// Row is a Row on a Report
 type Row struct {
 	//RowType indicates what type of Row this is
 	RowType string `json:"RowType,omitempty" xml:"RowType,omitempty"`

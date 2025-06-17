@@ -3,11 +3,11 @@ package accounting
 import (
 	"encoding/xml"
 
-	"github.com/XeroAPI/xerogolang"
 	"github.com/markbates/goth"
+	"github.com/omniboost/xerogolang"
 )
 
-//TrackingOption is an option from within a Tracking category
+// TrackingOption is an option from within a Tracking category
 type TrackingOption struct {
 
 	// The Xero identifier for a tracking optione.g. ae777a87-5ef3-4fa0-a4f0-d10e1f13073a
@@ -23,14 +23,14 @@ type TrackingOption struct {
 	TrackingCategoryID string `json:"TrackingCategoryID,omitempty" xml:"-"`
 }
 
-//Options is a collection of TrackingOptions
+// Options is a collection of TrackingOptions
 type Options struct {
 	Options []TrackingOption `json:"Options,omitempty" xml:"Option,omitempty"`
 }
 
-//Add will add tracking options to the TrackingCategory Specified on the first option
-//All options should belong to the same Tracking Category
-func (o *Options) Add(provider *xerogolang.Provider, session goth.Session) (*TrackingCategories, error) {
+// Add will add tracking options to the TrackingCategory Specified on the first option
+// All options should belong to the same Tracking Category
+func (o *Options) Add(provider xerogolang.IProvider, session goth.Session) (*TrackingCategories, error) {
 	additionalHeaders := map[string]string{
 		"Accept":       "application/json",
 		"Content-Type": "application/xml",
@@ -49,8 +49,8 @@ func (o *Options) Add(provider *xerogolang.Provider, session goth.Session) (*Tra
 	return unmarshalTrackingCategory(trackingCategoryResponseBytes)
 }
 
-//Update will update a given tracking option
-func (t *TrackingOption) Update(provider *xerogolang.Provider, session goth.Session) (*TrackingCategories, error) {
+// Update will update a given tracking option
+func (t *TrackingOption) Update(provider xerogolang.IProvider, session goth.Session) (*TrackingCategories, error) {
 	additionalHeaders := map[string]string{
 		"Accept":       "application/json",
 		"Content-Type": "application/xml",

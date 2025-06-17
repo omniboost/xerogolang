@@ -5,12 +5,12 @@ import (
 	"encoding/xml"
 	"time"
 
-	"github.com/XeroAPI/xerogolang"
-	"github.com/XeroAPI/xerogolang/helpers"
 	"github.com/markbates/goth"
+	"github.com/omniboost/xerogolang"
+	"github.com/omniboost/xerogolang/helpers"
 )
 
-//Account represents individual accounts in a Xero organisation
+// Account represents individual accounts in a Xero organisation
 type Account struct {
 
 	// Customer defined alpha numeric account code e.g 200 or SALES (max length = 10)
@@ -68,13 +68,13 @@ type Account struct {
 	UpdatedDateUTC string `json:"UpdatedDateUTC,omitempty" xml:"-"`
 }
 
-//Accounts contains a collection of Accounts
+// Accounts contains a collection of Accounts
 type Accounts struct {
 	Accounts []Account `json:"Accounts,omitempty" xml:"Account,omitempty"`
 }
 
-//The Xero API returns Dates based on the .Net JSON date format available at the time of development
-//We need to convert these to a more usable format - RFC3339 for consistency with what the API expects to recieve
+// The Xero API returns Dates based on the .Net JSON date format available at the time of development
+// We need to convert these to a more usable format - RFC3339 for consistency with what the API expects to recieve
 func (a *Accounts) convertDates() error {
 	var err error
 	for n := len(a.Accounts) - 1; n >= 0; n-- {
@@ -102,8 +102,8 @@ func unmarshalAccount(accountResponseBytes []byte) (*Accounts, error) {
 	return accountResponse, err
 }
 
-//Create will create accounts given an Accounts struct
-func (a *Accounts) Create(provider *xerogolang.Provider, session goth.Session) (*Accounts, error) {
+// Create will create accounts given an Accounts struct
+func (a *Accounts) Create(provider xerogolang.IProvider, session goth.Session) (*Accounts, error) {
 	additionalHeaders := map[string]string{
 		"Accept":       "application/json",
 		"Content-Type": "application/xml",
@@ -122,9 +122,9 @@ func (a *Accounts) Create(provider *xerogolang.Provider, session goth.Session) (
 	return unmarshalAccount(accountResponseBytes)
 }
 
-//Update will update an account given an Accounts struct
-//This will only handle single account - you cannot update multiple accounts in a single call
-func (a *Accounts) Update(provider *xerogolang.Provider, session goth.Session) (*Accounts, error) {
+// Update will update an account given an Accounts struct
+// This will only handle single account - you cannot update multiple accounts in a single call
+func (a *Accounts) Update(provider xerogolang.IProvider, session goth.Session) (*Accounts, error) {
 	additionalHeaders := map[string]string{
 		"Accept":       "application/json",
 		"Content-Type": "application/xml",
@@ -143,9 +143,9 @@ func (a *Accounts) Update(provider *xerogolang.Provider, session goth.Session) (
 	return unmarshalAccount(accountResponseBytes)
 }
 
-//FindAccountsModifiedSince will get all accounts modified after a specified date.
-//additional querystringParameters such as where and order can be added as a map
-func FindAccountsModifiedSince(provider *xerogolang.Provider, session goth.Session, modifiedSince time.Time, querystringParameters map[string]string) (*Accounts, error) {
+// FindAccountsModifiedSince will get all accounts modified after a specified date.
+// additional querystringParameters such as where and order can be added as a map
+func FindAccountsModifiedSince(provider xerogolang.IProvider, session goth.Session, modifiedSince time.Time, querystringParameters map[string]string) (*Accounts, error) {
 	additionalHeaders := map[string]string{
 		"Accept": "application/json",
 	}
@@ -162,14 +162,14 @@ func FindAccountsModifiedSince(provider *xerogolang.Provider, session goth.Sessi
 	return unmarshalAccount(accountResponseBytes)
 }
 
-//FindAccounts will get all accounts. These account will not have details like line items.
-//additional querystringParameters such as where and order can be added as a map
-func FindAccounts(provider *xerogolang.Provider, session goth.Session, querystringParameters map[string]string) (*Accounts, error) {
+// FindAccounts will get all accounts. These account will not have details like line items.
+// additional querystringParameters such as where and order can be added as a map
+func FindAccounts(provider xerogolang.IProvider, session goth.Session, querystringParameters map[string]string) (*Accounts, error) {
 	return FindAccountsModifiedSince(provider, session, dayZero, querystringParameters)
 }
 
-//FindAccount will get a single account - accountID must be a GUID for an account
-func FindAccount(provider *xerogolang.Provider, session goth.Session, accountID string) (*Accounts, error) {
+// FindAccount will get a single account - accountID must be a GUID for an account
+func FindAccount(provider xerogolang.IProvider, session goth.Session, accountID string) (*Accounts, error) {
 	additionalHeaders := map[string]string{
 		"Accept": "application/json",
 	}
@@ -182,8 +182,8 @@ func FindAccount(provider *xerogolang.Provider, session goth.Session, accountID 
 	return unmarshalAccount(accountResponseBytes)
 }
 
-//RemoveAccount will get a single account - accountID must be a GUID for an account
-func RemoveAccount(provider *xerogolang.Provider, session goth.Session, accountID string) (*Accounts, error) {
+// RemoveAccount will get a single account - accountID must be a GUID for an account
+func RemoveAccount(provider xerogolang.IProvider, session goth.Session, accountID string) (*Accounts, error) {
 	additionalHeaders := map[string]string{
 		"Accept": "application/json",
 	}
@@ -196,7 +196,7 @@ func RemoveAccount(provider *xerogolang.Provider, session goth.Session, accountI
 	return unmarshalAccount(accountResponseBytes)
 }
 
-//GenerateExampleAccount Creates an Example account
+// GenerateExampleAccount Creates an Example account
 func GenerateExampleAccount() *Accounts {
 	account := Account{
 		Code:                    "9999",

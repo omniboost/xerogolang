@@ -4,11 +4,11 @@ import (
 	"encoding/json"
 	"encoding/xml"
 
-	"github.com/XeroAPI/xerogolang"
 	"github.com/markbates/goth"
+	"github.com/omniboost/xerogolang"
 )
 
-//ContactGroup is a way of organising Contacts into groups
+// ContactGroup is a way of organising Contacts into groups
 type ContactGroup struct {
 
 	// The Name of the contact group. Required when creating a new contact group
@@ -24,7 +24,7 @@ type ContactGroup struct {
 	Contacts []Contact `json:"Contacts,omitempty" xml:"-"`
 }
 
-//ContactGroups is a collection of ContactGroups
+// ContactGroups is a collection of ContactGroups
 type ContactGroups struct {
 	ContactGroups []ContactGroup `json:"ContactGroups" xml:"ContactGroup"`
 }
@@ -39,8 +39,8 @@ func unmarshalContactGroup(contactGroupResponseBytes []byte) (*ContactGroups, er
 	return contactGroupResponse, err
 }
 
-//Create will create contactGroups given an ContactGroups struct
-func (c *ContactGroups) Create(provider *xerogolang.Provider, session goth.Session) (*ContactGroups, error) {
+// Create will create contactGroups given an ContactGroups struct
+func (c *ContactGroups) Create(provider xerogolang.IProvider, session goth.Session) (*ContactGroups, error) {
 	additionalHeaders := map[string]string{
 		"Accept":       "application/json",
 		"Content-Type": "application/xml",
@@ -59,9 +59,9 @@ func (c *ContactGroups) Create(provider *xerogolang.Provider, session goth.Sessi
 	return unmarshalContactGroup(contactGroupResponseBytes)
 }
 
-//Update will update an contactGroup given an ContactGroups struct
-//This will only handle single contactGroup - you cannot update multiple contactGroups in a single call
-func (c *ContactGroups) Update(provider *xerogolang.Provider, session goth.Session) (*ContactGroups, error) {
+// Update will update an contactGroup given an ContactGroups struct
+// This will only handle single contactGroup - you cannot update multiple contactGroups in a single call
+func (c *ContactGroups) Update(provider xerogolang.IProvider, session goth.Session) (*ContactGroups, error) {
 	additionalHeaders := map[string]string{
 		"Accept":       "application/json",
 		"Content-Type": "application/xml",
@@ -80,8 +80,8 @@ func (c *ContactGroups) Update(provider *xerogolang.Provider, session goth.Sessi
 	return unmarshalContactGroup(contactGroupResponseBytes)
 }
 
-//FindContactGroups will get all contactGroups
-func FindContactGroups(provider *xerogolang.Provider, session goth.Session) (*ContactGroups, error) {
+// FindContactGroups will get all contactGroups
+func FindContactGroups(provider xerogolang.IProvider, session goth.Session) (*ContactGroups, error) {
 	additionalHeaders := map[string]string{
 		"Accept": "application/json",
 	}
@@ -94,8 +94,8 @@ func FindContactGroups(provider *xerogolang.Provider, session goth.Session) (*Co
 	return unmarshalContactGroup(contactGroupResponseBytes)
 }
 
-//FindContactGroup will get a single contactGroup - contactGroupID must be a GUID for an contactGroup
-func FindContactGroup(provider *xerogolang.Provider, session goth.Session, contactGroupID string) (*ContactGroups, error) {
+// FindContactGroup will get a single contactGroup - contactGroupID must be a GUID for an contactGroup
+func FindContactGroup(provider xerogolang.IProvider, session goth.Session, contactGroupID string) (*ContactGroups, error) {
 	additionalHeaders := map[string]string{
 		"Accept": "application/json",
 	}
@@ -108,8 +108,8 @@ func FindContactGroup(provider *xerogolang.Provider, session goth.Session, conta
 	return unmarshalContactGroup(contactGroupResponseBytes)
 }
 
-//RemoveContactGroup will get a single contactGroup - contactGroupID must be a GUID for an contactGroup
-func RemoveContactGroup(provider *xerogolang.Provider, session goth.Session, contactGroupID string) (*ContactGroups, error) {
+// RemoveContactGroup will get a single contactGroup - contactGroupID must be a GUID for an contactGroup
+func RemoveContactGroup(provider xerogolang.IProvider, session goth.Session, contactGroupID string) (*ContactGroups, error) {
 	additionalHeaders := map[string]string{
 		"Accept": "application/json",
 	}
@@ -122,7 +122,7 @@ func RemoveContactGroup(provider *xerogolang.Provider, session goth.Session, con
 	return unmarshalContactGroup(contactGroupResponseBytes)
 }
 
-//GenerateExampleContactGroup Creates an Example contactGroup
+// GenerateExampleContactGroup Creates an Example contactGroup
 func GenerateExampleContactGroup() *ContactGroups {
 	contactGroup := ContactGroup{
 		Name:   "Festivus Supporters",

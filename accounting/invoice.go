@@ -2,15 +2,15 @@ package accounting
 
 import (
 	"encoding/json"
-	"encoding/xml"
 	"time"
 
-	"github.com/XeroAPI/xerogolang"
-	"github.com/XeroAPI/xerogolang/helpers"
 	"github.com/markbates/goth"
+	"github.com/omniboost/xerogolang"
+	"github.com/omniboost/xerogolang/helpers"
+	"github.com/shopspring/decimal"
 )
 
-//Invoice is an Accounts Payable or Accounts Recievable document in a Xero organisation
+// Invoice is an Accounts Payable or Accounts Recievable document in a Xero organisation
 type Invoice struct {
 	// See Invoice Types
 	Type string `json:"Type" xml:"Type"`
@@ -46,7 +46,7 @@ type Invoice struct {
 	CurrencyCode string `json:"CurrencyCode,omitempty" xml:"CurrencyCode,omitempty"`
 
 	// The currency rate for a multicurrency invoice. If no rate is specified, the XE.com day rate is used. (max length = [18].[6])
-	CurrencyRate float64 `json:"CurrencyRate,omitempty" xml:"CurrencyRate,omitempty"`
+	CurrencyRate decimal.Decimal `json:"CurrencyRate,omitempty" xml:"CurrencyRate,omitempty"`
 
 	// See Invoice Status Codes
 	Status string `json:"Status,omitempty" xml:"Status,omitempty"`
@@ -61,16 +61,16 @@ type Invoice struct {
 	PlannedPaymentDate string `json:"PlannedPaymentDate,omitempty" xml:"PlannedPaymentDate,omitempty"`
 
 	// Total of invoice excluding taxes
-	SubTotal float64 `json:"SubTotal,omitempty" xml:"SubTotal,omitempty"`
+	SubTotal decimal.Decimal `json:"SubTotal,omitempty" xml:"SubTotal,omitempty"`
 
 	// Total tax on invoice
-	TotalTax float64 `json:"TotalTax,omitempty" xml:"TotalTax,omitempty"`
+	TotalTax decimal.Decimal `json:"TotalTax,omitempty" xml:"TotalTax,omitempty"`
 
 	// Total of Invoice tax inclusive (i.e. SubTotal + TotalTax). This will be ignored if it doesn’t equal the sum of the LineAmounts
-	Total float64 `json:"Total,omitempty" xml:"Total,omitempty"`
+	Total decimal.Decimal `json:"Total,omitempty" xml:"Total,omitempty"`
 
 	// Total of discounts applied on the invoice line items
-	TotalDiscount float64 `json:"TotalDiscount,omitempty" xml:"-"`
+	TotalDiscount decimal.Decimal `json:"TotalDiscount,omitempty" xml:"-"`
 
 	// Xero generated unique identifier for invoice
 	InvoiceID string `json:"InvoiceID,omitempty" xml:"InvoiceID,omitempty"`
@@ -88,16 +88,16 @@ type Invoice struct {
 	Overpayments *[]Overpayment `json:"Overpayments,omitempty" xml:"-"`
 
 	// Amount remaining to be paid on invoice
-	AmountDue float64 `json:"AmountDue,omitempty" xml:"-"`
+	AmountDue decimal.Decimal `json:"AmountDue,omitempty" xml:"-"`
 
 	// Sum of payments received for invoice
-	AmountPaid float64 `json:"AmountPaid,omitempty" xml:"-"`
+	AmountPaid decimal.Decimal `json:"AmountPaid,omitempty" xml:"-"`
 
 	// The date the invoice was fully paid. Only returned on fully paid invoices
 	FullyPaidOnDate string `json:"FullyPaidOnDate,omitempty" xml:"-"`
 
 	// Sum of all credit notes, over-payments and pre-payments applied to invoice
-	AmountCredited float64 `json:"AmountCredited,omitempty" xml:"-"`
+	AmountCredited decimal.Decimal `json:"AmountCredited,omitempty" xml:"-"`
 
 	// Last modified date UTC format
 	UpdatedDateUTC string `json:"UpdatedDateUTC,omitempty" xml:"-"`
@@ -106,7 +106,7 @@ type Invoice struct {
 	CreditNotes *[]CreditNote `json:"CreditNotes,omitempty" xml:"-"`
 }
 
-//Invoices contains a collection of Invoices
+// Invoices contains a collection of Invoices
 type Invoices struct {
 	Invoices []Invoice `json:"Invoices" xml:"Invoice"`
 }
@@ -115,8 +115,8 @@ var (
 	dayZero = time.Date(1, 1, 1, 0, 0, 0, 0, time.UTC)
 )
 
-//The Xero API returns Dates based on the .Net JSON date format available at the time of development
-//We need to convert these to a more usable format - RFC3339 for consistency with what the API expects to recieve
+// The Xero API returns Dates based on the .Net JSON date format available at the time of development
+// We need to convert these to a more usable format - RFC3339 for consistency with what the API expects to recieve
 func (i *Invoices) convertDates() error {
 	var err error
 	for n := len(i.Invoices) - 1; n >= 0; n-- {
@@ -144,14 +144,14 @@ func unmarshalInvoice(invoiceResponseBytes []byte) (*Invoices, error) {
 	return invoiceResponse, err
 }
 
-//Create will create invoices given an Invoices struct
-func (i *Invoices) Create(provider *xerogolang.Provider, session goth.Session) (*Invoices, error) {
+// Create will create invoices given an Invoices struct
+func (i *Invoices) Create(provider xerogolang.IProvider, session goth.Session) (*Invoices, error) {
 	additionalHeaders := map[string]string{
 		"Accept":       "application/json",
-		"Content-Type": "application/xml",
+		"Content-Type": "application/json",
 	}
 
-	body, err := xml.MarshalIndent(i, "  ", "	")
+	body, err := json.MarshalIndent(i, "  ", "	")
 	if err != nil {
 		return nil, err
 	}
@@ -164,15 +164,15 @@ func (i *Invoices) Create(provider *xerogolang.Provider, session goth.Session) (
 	return unmarshalInvoice(invoiceResponseBytes)
 }
 
-//Update will update an invoice given an Invoices struct
-//This will only handle single invoice - you cannot update multiple invoices in a single call
-func (i *Invoices) Update(provider *xerogolang.Provider, session goth.Session) (*Invoices, error) {
+// Update will update an invoice given an Invoices struct
+// This will only handle single invoice - you cannot update multiple invoices in a single call
+func (i *Invoices) Update(provider xerogolang.IProvider, session goth.Session) (*Invoices, error) {
 	additionalHeaders := map[string]string{
 		"Accept":       "application/json",
-		"Content-Type": "application/xml",
+		"Content-Type": "application/json",
 	}
 
-	body, err := xml.MarshalIndent(i, "  ", "	")
+	body, err := json.MarshalIndent(i, "  ", "	")
 	if err != nil {
 		return nil, err
 	}
@@ -185,11 +185,11 @@ func (i *Invoices) Update(provider *xerogolang.Provider, session goth.Session) (
 	return unmarshalInvoice(invoiceResponseBytes)
 }
 
-//FindInvoicesModifiedSince will get all Invoices modified after a specified date.
-//These Invoices will not have details like default line items by default.
-//If you need details then add a 'page' querystringParameter and get 100 Invoices at a time
-//additional querystringParameters such as where, page, order can be added as a map
-func FindInvoicesModifiedSince(provider *xerogolang.Provider, session goth.Session, modifiedSince time.Time, querystringParameters map[string]string) (*Invoices, error) {
+// FindInvoicesModifiedSince will get all Invoices modified after a specified date.
+// These Invoices will not have details like default line items by default.
+// If you need details then add a 'page' querystringParameter and get 100 Invoices at a time
+// additional querystringParameters such as where, page, order can be added as a map
+func FindInvoicesModifiedSince(provider xerogolang.IProvider, session goth.Session, modifiedSince time.Time, querystringParameters map[string]string) (*Invoices, error) {
 	additionalHeaders := map[string]string{
 		"Accept": "application/json",
 	}
@@ -206,15 +206,15 @@ func FindInvoicesModifiedSince(provider *xerogolang.Provider, session goth.Sessi
 	return unmarshalInvoice(invoiceResponseBytes)
 }
 
-//FindInvoices will get all Invoices. These Invoice will not have details like line items by default.
-//If you need details then add a 'page' querystringParameter and get 100 Invoices at a time
-//additional querystringParameters such as where, page, order can be added as a map
-func FindInvoices(provider *xerogolang.Provider, session goth.Session, querystringParameters map[string]string) (*Invoices, error) {
+// FindInvoices will get all Invoices. These Invoice will not have details like line items by default.
+// If you need details then add a 'page' querystringParameter and get 100 Invoices at a time
+// additional querystringParameters such as where, page, order can be added as a map
+func FindInvoices(provider xerogolang.IProvider, session goth.Session, querystringParameters map[string]string) (*Invoices, error) {
 	return FindInvoicesModifiedSince(provider, session, dayZero, querystringParameters)
 }
 
-//FindInvoice will get a single invoice - invoiceID can be a GUID for an invoice or an invoice number
-func FindInvoice(provider *xerogolang.Provider, session goth.Session, invoiceID string) (*Invoices, error) {
+// FindInvoice will get a single invoice - invoiceID can be a GUID for an invoice or an invoice number
+func FindInvoice(provider xerogolang.IProvider, session goth.Session, invoiceID string) (*Invoices, error) {
 	additionalHeaders := map[string]string{
 		"Accept": "application/json",
 	}
@@ -227,12 +227,12 @@ func FindInvoice(provider *xerogolang.Provider, session goth.Session, invoiceID 
 	return unmarshalInvoice(invoiceResponseBytes)
 }
 
-//GenerateExampleInvoice Creates an Example invoice
+// GenerateExampleInvoice Creates an Example invoice
 func GenerateExampleInvoice() *Invoices {
 	lineItem := LineItem{
 		Description: "Importing & Exporting Services",
-		Quantity:    1.00,
-		UnitAmount:  395.00,
+		Quantity:    decimal.NewFromFloat(1.00),
+		UnitAmount:  decimal.NewFromFloat(395.00),
 		AccountCode: "200",
 	}
 

@@ -5,12 +5,13 @@ import (
 	"encoding/xml"
 	"time"
 
-	"github.com/XeroAPI/xerogolang"
-	"github.com/XeroAPI/xerogolang/helpers"
 	"github.com/markbates/goth"
+	"github.com/omniboost/xerogolang"
+	"github.com/omniboost/xerogolang/helpers"
+	"github.com/shopspring/decimal"
 )
 
-//BankTransaction is a bank transaction
+// BankTransaction is a bank transaction
 type BankTransaction struct {
 
 	// See Bank Transaction Types
@@ -35,7 +36,7 @@ type BankTransaction struct {
 	CurrencyCode string `json:"CurrencyCode,omitempty" xml:"CurrencyCode,omitempty"`
 
 	// Exchange rate to base currency when money is spent or received. e.g. 0.7500 Only used for bank transactions in non base currency. If this isn’t specified for non base currency accounts then either the user-defined rate (preference) or the XE.com day rate will be used. Setting currency is only supported on overpayments.
-	CurrencyRate float64 `json:"CurrencyRate,omitempty" xml:"CurrencyRate,omitempty"`
+	CurrencyRate decimal.Decimal `json:"CurrencyRate,omitempty" xml:"CurrencyRate,omitempty"`
 
 	// URL link to a source document – shown as “Go to App Name”
 	URL string `json:"Url,omitempty" xml:"Url,omitempty"`
@@ -47,13 +48,13 @@ type BankTransaction struct {
 	LineAmountTypes string `json:"LineAmountTypes,omitempty" xml:"LineAmountTypes,omitempty"`
 
 	// Total of bank transaction excluding taxes
-	SubTotal float64 `json:"SubTotal,omitempty" xml:"SubTotal,omitempty"`
+	SubTotal decimal.Decimal `json:"SubTotal,omitempty" xml:"SubTotal,omitempty"`
 
 	// Total tax on bank transaction
-	TotalTax float64 `json:"TotalTax,omitempty" xml:"TotalTax,omitempty"`
+	TotalTax decimal.Decimal `json:"TotalTax,omitempty" xml:"TotalTax,omitempty"`
 
 	// Total of bank transaction tax inclusive
-	Total float64 `json:"Total,omitempty" xml:"Total,omitempty"`
+	Total decimal.Decimal `json:"Total,omitempty" xml:"Total,omitempty"`
 
 	// Xero generated unique identifier for bank transaction
 	BankTransactionID string `json:"BankTransactionID,omitempty" xml:"BankTransactionID,omitempty"`
@@ -74,13 +75,13 @@ type BankTransaction struct {
 	HasAttachments bool `json:"HasAttachments,omitempty" xml:"-"`
 }
 
-//BankTransactions contains a collection of BankTransactions
+// BankTransactions contains a collection of BankTransactions
 type BankTransactions struct {
 	BankTransactions []BankTransaction `json:"BankTransactions" xml:"BankTransaction"`
 }
 
-//The Xero API returns Dates based on the .Net JSON date format available at the time of development
-//We need to convert these to a more usable format - RFC3339 for consistency with what the API expects to recieve
+// The Xero API returns Dates based on the .Net JSON date format available at the time of development
+// We need to convert these to a more usable format - RFC3339 for consistency with what the API expects to recieve
 func (b *BankTransactions) convertDates() error {
 	var err error
 	for n := len(b.BankTransactions) - 1; n >= 0; n-- {
@@ -108,8 +109,8 @@ func unmarshalBankTransaction(bankTransactionResponseBytes []byte) (*BankTransac
 	return bankTransactionResponse, err
 }
 
-//Create will create BankTransactions given an BankTransactions struct
-func (b *BankTransactions) Create(provider *xerogolang.Provider, session goth.Session) (*BankTransactions, error) {
+// Create will create BankTransactions given an BankTransactions struct
+func (b *BankTransactions) Create(provider xerogolang.IProvider, session goth.Session) (*BankTransactions, error) {
 	additionalHeaders := map[string]string{
 		"Accept":       "application/json",
 		"Content-Type": "application/xml",
@@ -128,9 +129,9 @@ func (b *BankTransactions) Create(provider *xerogolang.Provider, session goth.Se
 	return unmarshalBankTransaction(bankTransactionResponseBytes)
 }
 
-//Update will update a BankTransaction given a BankTransactions struct
-//This will only handle single BankTransaction - you cannot update multiple BankTransactions in a single call
-func (b *BankTransactions) Update(provider *xerogolang.Provider, session goth.Session) (*BankTransactions, error) {
+// Update will update a BankTransaction given a BankTransactions struct
+// This will only handle single BankTransaction - you cannot update multiple BankTransactions in a single call
+func (b *BankTransactions) Update(provider xerogolang.IProvider, session goth.Session) (*BankTransactions, error) {
 	additionalHeaders := map[string]string{
 		"Accept":       "application/json",
 		"Content-Type": "application/xml",
@@ -149,11 +150,11 @@ func (b *BankTransactions) Update(provider *xerogolang.Provider, session goth.Se
 	return unmarshalBankTransaction(bankTransactionResponseBytes)
 }
 
-//FindBankTransactionsModifiedSince will get all BankTransactions modified after a specified date.
-//These BankTransactions will not have details like default account codes and tracking categories by default.
-//If you need details then then add a 'page' querystringParameter and get 100 BankTransactions at a time
-//additional querystringParameters such as where, page, order can be added as a map
-func FindBankTransactionsModifiedSince(provider *xerogolang.Provider, session goth.Session, modifiedSince time.Time, querystringParameters map[string]string) (*BankTransactions, error) {
+// FindBankTransactionsModifiedSince will get all BankTransactions modified after a specified date.
+// These BankTransactions will not have details like default account codes and tracking categories by default.
+// If you need details then then add a 'page' querystringParameter and get 100 BankTransactions at a time
+// additional querystringParameters such as where, page, order can be added as a map
+func FindBankTransactionsModifiedSince(provider xerogolang.IProvider, session goth.Session, modifiedSince time.Time, querystringParameters map[string]string) (*BankTransactions, error) {
 	additionalHeaders := map[string]string{
 		"Accept": "application/json",
 	}
@@ -170,15 +171,15 @@ func FindBankTransactionsModifiedSince(provider *xerogolang.Provider, session go
 	return unmarshalBankTransaction(bankTransactionResponseBytes)
 }
 
-//FindBankTransactions will get all BankTransactions. These BankTransaction will not have details like line items by default.
-//If you need details then then add a 'page' querystringParameter and get 100 BankTransactions at a time
-//additional querystringParameters such as where, page, order can be added as a map
-func FindBankTransactions(provider *xerogolang.Provider, session goth.Session, querystringParameters map[string]string) (*BankTransactions, error) {
+// FindBankTransactions will get all BankTransactions. These BankTransaction will not have details like line items by default.
+// If you need details then then add a 'page' querystringParameter and get 100 BankTransactions at a time
+// additional querystringParameters such as where, page, order can be added as a map
+func FindBankTransactions(provider xerogolang.IProvider, session goth.Session, querystringParameters map[string]string) (*BankTransactions, error) {
 	return FindBankTransactionsModifiedSince(provider, session, dayZero, querystringParameters)
 }
 
-//FindBankTransaction will get a single BankTransaction - BankTransactionID can be a GUID for an BankTransaction or an BankTransaction number
-func FindBankTransaction(provider *xerogolang.Provider, session goth.Session, bankTransactionID string) (*BankTransactions, error) {
+// FindBankTransaction will get a single BankTransaction - BankTransactionID can be a GUID for an BankTransaction or an BankTransaction number
+func FindBankTransaction(provider xerogolang.IProvider, session goth.Session, bankTransactionID string) (*BankTransactions, error) {
 	additionalHeaders := map[string]string{
 		"Accept": "application/json",
 	}
@@ -191,12 +192,12 @@ func FindBankTransaction(provider *xerogolang.Provider, session goth.Session, ba
 	return unmarshalBankTransaction(bankTransactionResponseBytes)
 }
 
-//GenerateExampleBankTransaction Creates an Example bankTransaction
+// GenerateExampleBankTransaction Creates an Example bankTransaction
 func GenerateExampleBankTransaction() *BankTransactions {
 	lineItem := LineItem{
 		Description: "Importing & Exporting Services",
-		Quantity:    1.00,
-		UnitAmount:  395.00,
+		Quantity:    decimal.NewFromFloat(1.00),
+		UnitAmount:  decimal.NewFromFloat(395.00),
 		AccountCode: "200",
 	}
 

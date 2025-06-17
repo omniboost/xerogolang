@@ -5,12 +5,13 @@ import (
 	"encoding/xml"
 	"time"
 
-	"github.com/XeroAPI/xerogolang"
-	"github.com/XeroAPI/xerogolang/helpers"
 	"github.com/markbates/goth"
+	"github.com/omniboost/xerogolang"
+	"github.com/omniboost/xerogolang/helpers"
+	"github.com/shopspring/decimal"
 )
 
-//ManualJournal used by accountants or bookkeepers to work directly with the general ledger. For example, to record accrued expenses or completed work not invoiced.
+// ManualJournal used by accountants or bookkeepers to work directly with the general ledger. For example, to record accrued expenses or completed work not invoiced.
 type ManualJournal struct {
 
 	// Description of journal being posted
@@ -44,13 +45,13 @@ type ManualJournal struct {
 	ManualJournalID string `json:"ManualJournalID,omitempty" xml:"ManualJournalID,omitempty"`
 }
 
-//ManualJournals is a collection of ManualJournals
+// ManualJournals is a collection of ManualJournals
 type ManualJournals struct {
 	ManualJournals []ManualJournal `json:"ManualJournals,omitempty" xml:"ManualJournal,omitempty"`
 }
 
-//The Xero API returns Dates based on the .Net JSON date format available at the time of development
-//We need to convert these to a more usable format - RFC3339 for consistency with what the API expects to recieve
+// The Xero API returns Dates based on the .Net JSON date format available at the time of development
+// We need to convert these to a more usable format - RFC3339 for consistency with what the API expects to recieve
 func (m *ManualJournals) convertDates() error {
 	var err error
 	for n := len(m.ManualJournals) - 1; n >= 0; n-- {
@@ -82,14 +83,14 @@ func unmarshalManualJournal(manualJournalResponseBytes []byte) (*ManualJournals,
 	return manualJournalResponse, err
 }
 
-//Create will create manualJournals given an ManualJournals struct
-func (m *ManualJournals) Create(provider *xerogolang.Provider, session goth.Session) (*ManualJournals, error) {
+// Create will create manualJournals given an ManualJournals struct
+func (m *ManualJournals) Create(provider xerogolang.IProvider, session goth.Session) (*ManualJournals, error) {
 	additionalHeaders := map[string]string{
 		"Accept":       "application/json",
-		"Content-Type": "application/xml",
+		"Content-Type": "application/json",
 	}
 
-	body, err := xml.MarshalIndent(m, "  ", "	")
+	body, err := json.MarshalIndent(m, "  ", "	")
 	if err != nil {
 		return nil, err
 	}
@@ -102,9 +103,9 @@ func (m *ManualJournals) Create(provider *xerogolang.Provider, session goth.Sess
 	return unmarshalManualJournal(manualJournalResponseBytes)
 }
 
-//Update will update an manualJournal given an ManualJournals struct
-//This will only handle single manualJournal - you cannot update multiple manualJournals in a single call
-func (m *ManualJournals) Update(provider *xerogolang.Provider, session goth.Session) (*ManualJournals, error) {
+// Update will update an manualJournal given an ManualJournals struct
+// This will only handle single manualJournal - you cannot update multiple manualJournals in a single call
+func (m *ManualJournals) Update(provider xerogolang.IProvider, session goth.Session) (*ManualJournals, error) {
 	additionalHeaders := map[string]string{
 		"Accept":       "application/json",
 		"Content-Type": "application/xml",
@@ -123,11 +124,11 @@ func (m *ManualJournals) Update(provider *xerogolang.Provider, session goth.Sess
 	return unmarshalManualJournal(manualJournalResponseBytes)
 }
 
-//FindManualJournalsModifiedSince will get all ManualJournals modified after a specified date.
-//These ManualJournals will not have details like line items by default
-//If you need details then then add a 'page' querystringParameter and get 100 ManualJournals at a time
-//additional querystringParameters such as where, page, order can be added as a map
-func FindManualJournalsModifiedSince(provider *xerogolang.Provider, session goth.Session, modifiedSince time.Time, querystringParameters map[string]string) (*ManualJournals, error) {
+// FindManualJournalsModifiedSince will get all ManualJournals modified after a specified date.
+// These ManualJournals will not have details like line items by default
+// If you need details then then add a 'page' querystringParameter and get 100 ManualJournals at a time
+// additional querystringParameters such as where, page, order can be added as a map
+func FindManualJournalsModifiedSince(provider xerogolang.IProvider, session goth.Session, modifiedSince time.Time, querystringParameters map[string]string) (*ManualJournals, error) {
 	additionalHeaders := map[string]string{
 		"Accept": "application/json",
 	}
@@ -144,15 +145,15 @@ func FindManualJournalsModifiedSince(provider *xerogolang.Provider, session goth
 	return unmarshalManualJournal(manualJournalResponseBytes)
 }
 
-//FindManualJournals will get all ManualJournals. These ManualJournal will not have details like line items.
-//If you need details then then add a 'page' querystringParameter and get 100 ManualJournals at a time
-//additional querystringParameters such as where, page, order can be added as a map
-func FindManualJournals(provider *xerogolang.Provider, session goth.Session, querystringParameters map[string]string) (*ManualJournals, error) {
+// FindManualJournals will get all ManualJournals. These ManualJournal will not have details like line items.
+// If you need details then then add a 'page' querystringParameter and get 100 ManualJournals at a time
+// additional querystringParameters such as where, page, order can be added as a map
+func FindManualJournals(provider xerogolang.IProvider, session goth.Session, querystringParameters map[string]string) (*ManualJournals, error) {
 	return FindManualJournalsModifiedSince(provider, session, dayZero, querystringParameters)
 }
 
-//FindManualJournal will get a single manualJournal - manualJournalID can be a GUID for an manualJournal or an manualJournal number
-func FindManualJournal(provider *xerogolang.Provider, session goth.Session, manualJournalID string) (*ManualJournals, error) {
+// FindManualJournal will get a single manualJournal - manualJournalID can be a GUID for an manualJournal or an manualJournal number
+func FindManualJournal(provider xerogolang.IProvider, session goth.Session, manualJournalID string) (*ManualJournals, error) {
 	additionalHeaders := map[string]string{
 		"Accept": "application/json",
 	}
@@ -165,17 +166,17 @@ func FindManualJournal(provider *xerogolang.Provider, session goth.Session, manu
 	return unmarshalManualJournal(manualJournalResponseBytes)
 }
 
-//GenerateExampleManualJournal Creates an Example manualJournal
+// GenerateExampleManualJournal Creates an Example manualJournal
 func GenerateExampleManualJournal() *ManualJournals {
 	lineItem := ManualJournalLine{
 		Description: "Importing & Exporting Services",
-		LineAmount:  395.00,
+		LineAmount:  decimal.NewFromFloat(395.00),
 		AccountCode: "200",
 	}
 
 	lineItem2 := ManualJournalLine{
 		Description: "Importing & Exporting Services",
-		LineAmount:  -395.00,
+		LineAmount:  decimal.NewFromFloat(-395.00),
 		AccountCode: "310",
 	}
 

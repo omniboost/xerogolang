@@ -12,7 +12,7 @@ import (
 	"time"
 )
 
-//ReaderToString converts an io.ReadCloser to a string
+// ReaderToString converts an io.ReadCloser to a string
 func ReaderToString(reader io.ReadCloser) string {
 	if reader == nil {
 		return ""
@@ -43,7 +43,7 @@ func getTimestampAndOffset(regex *regexp.Regexp, timeString string) (int64, int6
 	return timestamp, offset, nil
 }
 
-//DotNetJSONTimeToRFC3339 Converts the .Net formatted time returned by the Xero API to a more readable format
+// DotNetJSONTimeToRFC3339 Converts the .Net formatted time returned by the Xero API to a more readable format
 func DotNetJSONTimeToRFC3339(jsonTime string, isUTC bool) (string, error) {
 	//If jsonTime is empty we don't need to convert anything
 	if jsonTime == "" {
@@ -95,16 +95,16 @@ func DotNetJSONTimeToRFC3339(jsonTime string, isUTC bool) (string, error) {
 	}
 }
 
-//TodayRFC3339 returns an RFC3339 formatted date
-//with a 0 valued time as required by many Xero endpoints
+// TodayRFC3339 returns an RFC3339 formatted date
+// with a 0 valued time as required by many Xero endpoints
 func TodayRFC3339() string {
 	now := time.Now()
 	today := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.UTC)
 	return strings.TrimSuffix(today.Format(time.RFC3339), "Z")
 }
 
-//FormatDate returns an RFC3339 formatted date
-//with a 0 valued time as required by many Xero endpoints
+// FormatDate returns an RFC3339 formatted date
+// with a 0 valued time as required by many Xero endpoints
 func FormatDate(date time.Time) string {
 	d := time.Date(date.Year(), date.Month(), date.Day(), 0, 0, 0, 0, time.UTC)
 	return strings.TrimSuffix(d.Format(time.RFC3339), "Z")
@@ -123,10 +123,10 @@ func ReadPrivateKeyFromPath(privateKeyFilePath string) string {
 }
 
 func StringInSlice(str string, list []string) bool {
- 	for _, v := range list {
- 		if v == str {
- 			return true
- 		}
- 	}
- 	return false
- }
+	for _, v := range list {
+		if v == str {
+			return true
+		}
+	}
+	return false
+}

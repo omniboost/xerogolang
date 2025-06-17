@@ -5,13 +5,14 @@ import (
 	"encoding/xml"
 	"time"
 
-	"github.com/XeroAPI/xerogolang"
-	"github.com/XeroAPI/xerogolang/helpers"
 	"github.com/markbates/goth"
+	"github.com/omniboost/xerogolang"
+	"github.com/omniboost/xerogolang/helpers"
+	"github.com/shopspring/decimal"
 )
 
-//CreditNote an be raised directly against a customer or supplier,
-//allowing the customer or supplier to be held in credit until a future invoice or bill is raised
+// CreditNote an be raised directly against a customer or supplier,
+// allowing the customer or supplier to be held in credit until a future invoice or bill is raised
 type CreditNote struct {
 
 	// See Credit Note Types
@@ -35,13 +36,13 @@ type CreditNote struct {
 	LineItems []LineItem `json:"LineItems,omitempty" xml:"LineItems>LineItem,omitempty"`
 
 	// The subtotal of the credit note excluding taxes
-	SubTotal float64 `json:"SubTotal,omitempty" xml:"SubTotal,omitempty"`
+	SubTotal *decimal.Decimal `json:"SubTotal,omitempty" xml:"SubTotal,omitempty"`
 
 	// The total tax on the credit note
-	TotalTax float64 `json:"TotalTax,omitempty" xml:"TotalTax,omitempty"`
+	TotalTax *decimal.Decimal `json:"TotalTax,omitempty" xml:"TotalTax,omitempty"`
 
 	// The total of the Credit Note(subtotal + total tax)
-	Total float64 `json:"Total,omitempty" xml:"Total,omitempty"`
+	Total *decimal.Decimal `json:"Total,omitempty" xml:"Total,omitempty"`
 
 	// UTC timestamp of last update to the credit note
 	UpdatedDateUTC string `json:"UpdatedDateUTC,omitempty" xml:"-"`
@@ -65,10 +66,10 @@ type CreditNote struct {
 	SentToContact bool `json:"SentToContact,omitempty" xml:"SentToContact,omitempty"`
 
 	// The currency rate for a multicurrency invoice. If no rate is specified, the XE.com day rate is used
-	CurrencyRate float64 `json:"CurrencyRate,omitempty" xml:"CurrencyRate,omitempty"`
+	CurrencyRate decimal.Decimal `json:"CurrencyRate,omitempty" xml:"CurrencyRate,omitempty"`
 
 	// The remaining credit balance on the Credit Note
-	RemainingCredit float64 `json:"RemainingCredit,omitempty" xml:"-"`
+	RemainingCredit decimal.Decimal `json:"RemainingCredit,omitempty" xml:"-"`
 
 	// See Allocations
 	Allocations *[]Allocation `json:"Allocations,omitempty" xml:"-"`
@@ -80,13 +81,13 @@ type CreditNote struct {
 	HasAttachments bool `json:"HasAttachments,omitempty" xml:"-"`
 }
 
-//CreditNotes is a collection of CreditNote
+// CreditNotes is a collection of CreditNote
 type CreditNotes struct {
 	CreditNotes []CreditNote `json:"CreditNotes" xml:"CreditNote"`
 }
 
-//The Xero API returns Dates based on the .Net JSON date format available at the time of development
-//We need to convert these to a more usable format - RFC3339 for consistency with what the API expects to recieve
+// The Xero API returns Dates based on the .Net JSON date format available at the time of development
+// We need to convert these to a more usable format - RFC3339 for consistency with what the API expects to recieve
 func (c *CreditNotes) convertDates() error {
 	var err error
 	for n := len(c.CreditNotes) - 1; n >= 0; n-- {
@@ -114,14 +115,14 @@ func unmarshalCreditNote(creditNoteResponseBytes []byte) (*CreditNotes, error) {
 	return creditNoteResponse, err
 }
 
-//Create will create creditNotes given an CreditNotes struct
-func (c *CreditNotes) Create(provider *xerogolang.Provider, session goth.Session) (*CreditNotes, error) {
+// Create will create creditNotes given an CreditNotes struct
+func (c *CreditNotes) Create(provider xerogolang.IProvider, session goth.Session) (*CreditNotes, error) {
 	additionalHeaders := map[string]string{
 		"Accept":       "application/json",
-		"Content-Type": "application/xml",
+		"Content-Type": "application/json",
 	}
 
-	body, err := xml.MarshalIndent(c, "  ", "	")
+	body, err := json.MarshalIndent(c, "  ", "	")
 	if err != nil {
 		return nil, err
 	}
@@ -134,9 +135,9 @@ func (c *CreditNotes) Create(provider *xerogolang.Provider, session goth.Session
 	return unmarshalCreditNote(creditNoteResponseBytes)
 }
 
-//Update will update an creditNote given an CreditNotes struct
-//This will only handle single creditNote - you cannot update multiple creditNotes in a single call
-func (c *CreditNotes) Update(provider *xerogolang.Provider, session goth.Session) (*CreditNotes, error) {
+// Update will update an creditNote given an CreditNotes struct
+// This will only handle single creditNote - you cannot update multiple creditNotes in a single call
+func (c *CreditNotes) Update(provider xerogolang.IProvider, session goth.Session) (*CreditNotes, error) {
 	additionalHeaders := map[string]string{
 		"Accept":       "application/json",
 		"Content-Type": "application/xml",
@@ -155,11 +156,11 @@ func (c *CreditNotes) Update(provider *xerogolang.Provider, session goth.Session
 	return unmarshalCreditNote(creditNoteResponseBytes)
 }
 
-//FindCreditNotesModifiedSince will get all Credit Notes modified after a specified date.
-//These Credit Notes will not have details like line items by default.
-//If you need details then then add a 'page' querystringParameter and get 100 Credit Notes at a time
-//additional querystringParameters such as where, page, order can be added as a map
-func FindCreditNotesModifiedSince(provider *xerogolang.Provider, session goth.Session, modifiedSince time.Time, querystringParameters map[string]string) (*CreditNotes, error) {
+// FindCreditNotesModifiedSince will get all Credit Notes modified after a specified date.
+// These Credit Notes will not have details like line items by default.
+// If you need details then then add a 'page' querystringParameter and get 100 Credit Notes at a time
+// additional querystringParameters such as where, page, order can be added as a map
+func FindCreditNotesModifiedSince(provider xerogolang.IProvider, session goth.Session, modifiedSince time.Time, querystringParameters map[string]string) (*CreditNotes, error) {
 	additionalHeaders := map[string]string{
 		"Accept": "application/json",
 	}
@@ -176,15 +177,15 @@ func FindCreditNotesModifiedSince(provider *xerogolang.Provider, session goth.Se
 	return unmarshalCreditNote(creditNoteResponseBytes)
 }
 
-//FindCreditNotes will get all CreditNotes. These Credit Notes will not have details like line items by default.
-//If you need details then then add a 'page' querystringParameter and get 100 Credit Notes at a time
-//additional querystringParameters such as where, page, order can be added as a map
-func FindCreditNotes(provider *xerogolang.Provider, session goth.Session, querystringParameters map[string]string) (*CreditNotes, error) {
+// FindCreditNotes will get all CreditNotes. These Credit Notes will not have details like line items by default.
+// If you need details then then add a 'page' querystringParameter and get 100 Credit Notes at a time
+// additional querystringParameters such as where, page, order can be added as a map
+func FindCreditNotes(provider xerogolang.IProvider, session goth.Session, querystringParameters map[string]string) (*CreditNotes, error) {
 	return FindCreditNotesModifiedSince(provider, session, dayZero, querystringParameters)
 }
 
-//FindCreditNote will get a single creditNote - creditNoteID can be a GUID for a creditNote or a creditNote number
-func FindCreditNote(provider *xerogolang.Provider, session goth.Session, creditNoteID string) (*CreditNotes, error) {
+// FindCreditNote will get a single creditNote - creditNoteID can be a GUID for a creditNote or a creditNote number
+func FindCreditNote(provider xerogolang.IProvider, session goth.Session, creditNoteID string) (*CreditNotes, error) {
 	additionalHeaders := map[string]string{
 		"Accept": "application/json",
 	}
@@ -197,12 +198,12 @@ func FindCreditNote(provider *xerogolang.Provider, session goth.Session, creditN
 	return unmarshalCreditNote(creditNoteResponseBytes)
 }
 
-//GenerateExampleCreditNote Creates an Example creditNote
+// GenerateExampleCreditNote Creates an Example creditNote
 func GenerateExampleCreditNote() *CreditNotes {
 	lineItem := LineItem{
 		Description: "Refund Importing & Exporting Services",
-		Quantity:    1.00,
-		UnitAmount:  395.00,
+		Quantity:    decimal.NewFromFloat(1.00),
+		UnitAmount:  decimal.NewFromFloat(395.00),
 		AccountCode: "200",
 	}
 

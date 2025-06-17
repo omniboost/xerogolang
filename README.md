@@ -1,7 +1,7 @@
 # xerogolang (deprecated as of April 2021)
 
 ## Looking for OAuth 2.0?
-This repository xerogolang was hand written for use with OAuth1.0a. For OAuth 2, we've moved to building next generation SDKs in an automated fashion using OpenAPI specifications. 
+This repository xerogolang was hand written for use with OAuth1.0a. For OAuth 2, we've moved to building next generation SDKs in an automated fashion using OpenAPI specifications.
 
 OAuth 1.0a was officially deprecated on March 31, 2021. We've made the decision to archive xerogolang and not update to OAuth 2 as this is not inline with our strategy to automate the creation of them from OpenAPI specs.
 
@@ -15,7 +15,7 @@ https://github.com/XeroAPI/golang-oauth2-example
 We are devoting resources towards building and improving our new OAuth 2.0 SDKs which don't share a code base with this library. For those using xerogolang, you have the option of forking this repository and modifying it for future use.
 
 
-[![GoDoc](https://godoc.org/github.com/XeroAPI/xerogolang?status.png)](https://godoc.org/github.com/XeroAPI/xerogolang)
+[![GoDoc](https://godoc.org/github.com/omniboost/xerogolang?status.png)](https://godoc.org/github.com/omniboost/xerogolang)
 
 This is the Xero Golang SDK for the [Xero API](https://developer.xero.com/).
 
@@ -28,7 +28,7 @@ You'll need to decide which type of Xero app you'll be building [Private](http:/
 ### Download Xero Golang SDK
 Download the SDK using the following command:
 ```text
-$ go get github.com/XeroAPI/xerogolang
+$ go get github.com/omniboost/xerogolang
 ```
 
 
@@ -77,11 +77,11 @@ The Xero Golang SDK contains the Accounting package which has helper methods to 
 Create can be called on structs that have been populated with data:
 ```go
 c := &Contacts{
-  Contacts: []Contact{
-    Contact{
-      Name: "Cosmo Kramer",
-    },
-  },
+Contacts: []Contact{
+Contact{
+Name: "Cosmo Kramer",
+},
+},
 }
 r, err := c.Create(provider, session)
 ```
@@ -102,7 +102,7 @@ i, err = accounting.FindInvoicesModifiedSince(provider, session, time.Now().Add(
 all entities from an endpoint using paging:
 ```go
 querystringParameters := map[string]string{
-  "page": 1,
+"page": 1,
 }
 
 i, err = accounting.FindInvoices(provider, session, querystringParameters)
@@ -110,7 +110,7 @@ i, err = accounting.FindInvoices(provider, session, querystringParameters)
 all entities from an endpoint that match a given where clause:
 ```go
 querystringParameters := map[string]string{
-  "where": "Contact.Name==\"Vanderlay Industries\"",
+"where": "Contact.Name==\"Vanderlay Industries\"",
 }
 
 i, err = accounting.FindInvoices(provider, session, querystringParameters)
@@ -118,7 +118,7 @@ i, err = accounting.FindInvoices(provider, session, querystringParameters)
 all entities from an endpoint in a particular order:
 ```go
 querystringParameters := map[string]string{
-  "order": "DueDate",
+"order": "DueDate",
 }
 
 i, err = accounting.FindInvoices(provider, session, querystringParameters)
@@ -126,7 +126,7 @@ i, err = accounting.FindInvoices(provider, session, querystringParameters)
 all entities from an endpoint using a filter:
 ```go
 querystringParameters := map[string]string{
-  "Statuses": "DRAFT,SUBMITTED",
+"Statuses": "DRAFT,SUBMITTED",
 }
 
 i, err = accounting.FindInvoices(provider, session, querystringParameters)
@@ -134,10 +134,10 @@ i, err = accounting.FindInvoices(provider, session, querystringParameters)
 a combination of all of the above:
 ```go
 querystringParameters := map[string]string{
-  "page": 1,
-  "where": "Contact.Name==\"Vanderlay Industries\"",
-  "order": "DueDate",
-  "Statuses": "DRAFT,SUBMITTED",
+"page": 1,
+"where": "Contact.Name==\"Vanderlay Industries\"",
+"order": "DueDate",
+"Statuses": "DRAFT,SUBMITTED",
 }
 
 i, err = accounting.FindInvoicesModifiedSince(provider, session, time.Now().Add(-24*time.Hour), querystringParameters)

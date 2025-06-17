@@ -1,6 +1,6 @@
 package accounting
 
-//Address is an address for a contact
+// Address is an address for a contact
 type Address struct {
 	AddressType string `json:"AddressType,omitempty" xml:"AddressType,omitempty"`
 

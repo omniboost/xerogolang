@@ -3,12 +3,13 @@ package accounting
 import (
 	"encoding/json"
 
-	"github.com/XeroAPI/xerogolang"
-	"github.com/XeroAPI/xerogolang/helpers"
 	"github.com/markbates/goth"
+	"github.com/omniboost/xerogolang"
+	"github.com/omniboost/xerogolang/helpers"
+	"github.com/shopspring/decimal"
 )
 
-//RepeatingInvoice a template for the invoices you send and bills you receive regularly
+// RepeatingInvoice a template for the invoices you send and bills you receive regularly
 type RepeatingInvoice struct {
 
 	// See Invoice Types
@@ -36,13 +37,13 @@ type RepeatingInvoice struct {
 	Status string `json:"Status,omitempty" xml:"Status,omitempty"`
 
 	// Total of invoice excluding taxes
-	SubTotal float64 `json:"SubTotal,omitempty" xml:"SubTotal,omitempty"`
+	SubTotal decimal.Decimal `json:"SubTotal,omitempty" xml:"SubTotal,omitempty"`
 
 	// Total tax on invoice
-	TotalTax float64 `json:"TotalTax,omitempty" xml:"TotalTax,omitempty"`
+	TotalTax decimal.Decimal `json:"TotalTax,omitempty" xml:"TotalTax,omitempty"`
 
 	// Total of Invoice tax inclusive (i.e. SubTotal + TotalTax)
-	Total float64 `json:"Total,omitempty" xml:"Total,omitempty"`
+	Total decimal.Decimal `json:"Total,omitempty" xml:"Total,omitempty"`
 
 	// Xero generated unique identifier for repeating invoice template
 	RepeatingInvoiceID string `json:"RepeatingInvoiceID,omitempty" xml:"RepeatingInvoiceID,omitempty"`
@@ -54,13 +55,13 @@ type RepeatingInvoice struct {
 	Schedule Schedule `json:"Schedule,omitempty" xml:"Schedule,omitempty"`
 }
 
-//RepeatingInvoices is a collection of RepeatingInvoices
+// RepeatingInvoices is a collection of RepeatingInvoices
 type RepeatingInvoices struct {
 	RepeatingInvoices []RepeatingInvoice `json:"RepeatingInvoices,omitempty" xml:"RepeatingInvoice,omitempty"`
 }
 
-//The Xero API returns Dates based on the .Net JSON date format available at the time of development
-//We need to convert these to a more usable format - RFC3339 for consistency with what the API expects to recieve
+// The Xero API returns Dates based on the .Net JSON date format available at the time of development
+// We need to convert these to a more usable format - RFC3339 for consistency with what the API expects to recieve
 func (i *RepeatingInvoices) convertDates() error {
 	var err error
 	for n := len(i.RepeatingInvoices) - 1; n >= 0; n-- {
@@ -98,9 +99,9 @@ func unmarshalRepeatingInvoices(repeatingInvoiceResponseBytes []byte) (*Repeatin
 	return repeatingInvoiceResponse, err
 }
 
-//FindRepeatingInvoices will get all repeatingInvoices
-//additional querystringParameters such as where and order can be added as a map
-func FindRepeatingInvoices(provider *xerogolang.Provider, session goth.Session, querystringParameters map[string]string) (*RepeatingInvoices, error) {
+// FindRepeatingInvoices will get all repeatingInvoices
+// additional querystringParameters such as where and order can be added as a map
+func FindRepeatingInvoices(provider xerogolang.IProvider, session goth.Session, querystringParameters map[string]string) (*RepeatingInvoices, error) {
 	additionalHeaders := map[string]string{
 		"Accept": "application/json",
 	}
@@ -113,8 +114,8 @@ func FindRepeatingInvoices(provider *xerogolang.Provider, session goth.Session, 
 	return unmarshalRepeatingInvoices(repeatingInvoiceResponseBytes)
 }
 
-//FindRepeatingInvoice will get a single repeatingInvoice - RepeatingInvoiceID must be a GUID for a repeatingInvoice
-func FindRepeatingInvoice(provider *xerogolang.Provider, session goth.Session, repeatingInvoiceID string) (*RepeatingInvoices, error) {
+// FindRepeatingInvoice will get a single repeatingInvoice - RepeatingInvoiceID must be a GUID for a repeatingInvoice
+func FindRepeatingInvoice(provider xerogolang.IProvider, session goth.Session, repeatingInvoiceID string) (*RepeatingInvoices, error) {
 	additionalHeaders := map[string]string{
 		"Accept": "application/json",
 	}

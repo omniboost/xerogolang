@@ -17,10 +17,10 @@ import (
 
 	"crypto"
 
-	"github.com/XeroAPI/xerogolang/auth"
-	"github.com/XeroAPI/xerogolang/helpers"
 	"github.com/markbates/goth"
 	"github.com/mrjones/oauth"
+	"github.com/omniboost/xerogolang/auth"
+	"github.com/omniboost/xerogolang/helpers"
 	"golang.org/x/oauth2"
 )
 
@@ -37,6 +37,13 @@ var (
 	privateKeyFilePath = os.Getenv("XERO_PRIVATE_KEY_PATH")
 )
 
+type IProvider interface {
+	Find(goth.Session, string, map[string]string, map[string]string) ([]byte, error)
+	Create(goth.Session, string, map[string]string, []byte) ([]byte, error)
+	Update(goth.Session, string, map[string]string, []byte) ([]byte, error)
+	Remove(goth.Session, string, map[string]string) ([]byte, error)
+}
+
 // Provider is the implementation of `goth.Provider` for accessing Xero.
 type Provider struct {
 	ClientKey       string
@@ -51,7 +58,7 @@ type Provider struct {
 	providerName    string
 }
 
-//newPublicConsumer creates a consumer capable of communicating with a Public application: https://developer.xero.com/documentation/auth-and-limits/public-applications
+// newPublicConsumer creates a consumer capable of communicating with a Public application: https://developer.xero.com/documentation/auth-and-limits/public-applications
 func (p *Provider) newPublicConsumer(authURL string) *oauth.Consumer {
 
 	var c *oauth.Consumer
@@ -82,7 +89,7 @@ func (p *Provider) newPublicConsumer(authURL string) *oauth.Consumer {
 	return c
 }
 
-//newPartnerConsumer creates a consumer capable of communicating with a Partner application: https://developer.xero.com/documentation/auth-and-limits/partner-applications
+// newPartnerConsumer creates a consumer capable of communicating with a Partner application: https://developer.xero.com/documentation/auth-and-limits/partner-applications
 func (p *Provider) newPrivateOrPartnerConsumer(authURL string) *oauth.Consumer {
 	block, _ := pem.Decode([]byte(p.PrivateKey))
 
@@ -232,7 +239,7 @@ func (p *Provider) BeginAuth(state string) (goth.Session, error) {
 	return session, nil
 }
 
-//processRequest processes a request prior to it being sent to the API
+// processRequest processes a request prior to it being sent to the API
 func (p *Provider) processRequest(request *http.Request, session goth.Session, additionalHeaders map[string]string) ([]byte, error) {
 	sess := session.(*Session)
 
@@ -288,7 +295,7 @@ func (p *Provider) processRequest(request *http.Request, session goth.Session, a
 	return responseBytes, nil
 }
 
-//Find retrieves the requested data from an endpoint to be unmarshaled into the appropriate data type
+// Find retrieves the requested data from an endpoint to be unmarshaled into the appropriate data type
 func (p *Provider) Find(session goth.Session, endpoint string, additionalHeaders map[string]string, querystringParameters map[string]string) ([]byte, error) {
 	var querystring string
 	if querystringParameters != nil {
@@ -308,7 +315,7 @@ func (p *Provider) Find(session goth.Session, endpoint string, additionalHeaders
 	return p.processRequest(request, session, additionalHeaders)
 }
 
-//Create sends data to an endpoint and returns a response to be unmarshaled into the appropriate data type
+// Create sends data to an endpoint and returns a response to be unmarshaled into the appropriate data type
 func (p *Provider) Create(session goth.Session, endpoint string, additionalHeaders map[string]string, body []byte) ([]byte, error) {
 	bodyReader := bytes.NewReader(body)
 
@@ -320,7 +327,7 @@ func (p *Provider) Create(session goth.Session, endpoint string, additionalHeade
 	return p.processRequest(request, session, additionalHeaders)
 }
 
-//Update sends data to an endpoint and returns a response to be unmarshaled into the appropriate data type
+// Update sends data to an endpoint and returns a response to be unmarshaled into the appropriate data type
 func (p *Provider) Update(session goth.Session, endpoint string, additionalHeaders map[string]string, body []byte) ([]byte, error) {
 	bodyReader := bytes.NewReader(body)
 
@@ -332,7 +339,7 @@ func (p *Provider) Update(session goth.Session, endpoint string, additionalHeade
 	return p.processRequest(request, session, additionalHeaders)
 }
 
-//Remove deletes the specified data from an endpoint
+// Remove deletes the specified data from an endpoint
 func (p *Provider) Remove(session goth.Session, endpoint string, additionalHeaders map[string]string) ([]byte, error) {
 	request, err := http.NewRequest("DELETE", endpointProfile+endpoint, nil)
 	if err != nil {
@@ -342,8 +349,8 @@ func (p *Provider) Remove(session goth.Session, endpoint string, additionalHeade
 	return p.processRequest(request, session, additionalHeaders)
 }
 
-//Organisation is the expected response from the Organisation endpoint - this is not a complete schema
-//and should only be used by FetchUser
+// Organisation is the expected response from the Organisation endpoint - this is not a complete schema
+// and should only be used by FetchUser
 type Organisation struct {
 	// Display name of organisation shown in Xero
 	Name string `json:"Name,omitempty"`
@@ -361,7 +368,7 @@ type Organisation struct {
 	ShortCode string `json:"ShortCode,omitempty"`
 }
 
-//OrganisationCollection is the Total response from the Xero API
+// OrganisationCollection is the Total response from the Xero API
 type OrganisationCollection struct {
 	Organisations []Organisation `json:"Organisations,omitempty"`
 }
@@ -398,7 +405,7 @@ func (p *Provider) FetchUser(session goth.Session) (goth.User, error) {
 	return user, err
 }
 
-//RefreshOAuth1Token should be used instead of RefeshToken which is not compliant with the Oauth1.0a standard
+// RefreshOAuth1Token should be used instead of RefeshToken which is not compliant with the Oauth1.0a standard
 func (p *Provider) RefreshOAuth1Token(session *Session) error {
 	if p.consumer == nil {
 		p.initConsumer()
@@ -415,22 +422,22 @@ func (p *Provider) RefreshOAuth1Token(session *Session) error {
 	return nil
 }
 
-//RefreshToken refresh token is not provided by the Xero Public or Private Application -
-//only the Partner Application and you must use RefreshOAuth1Token instead
+// RefreshToken refresh token is not provided by the Xero Public or Private Application -
+// only the Partner Application and you must use RefreshOAuth1Token instead
 func (p *Provider) RefreshToken(refreshToken string) (*oauth2.Token, error) {
 	return nil, errors.New("Refresh token is only provided by Xero for Partner Applications")
 }
 
-//RefreshTokenAvailable refresh token is not provided by the Xero Public or Private Application -
-//only the Partner Application and you must use RefreshOAuth1Token instead
+// RefreshTokenAvailable refresh token is not provided by the Xero Public or Private Application -
+// only the Partner Application and you must use RefreshOAuth1Token instead
 func (p *Provider) RefreshTokenAvailable() bool {
 	return false
 }
 
-//GetSessionFromStore returns a session for a given a request and a response
-//This is an exaple of how you could get a session from a store - as long as you're
-//supplying a goth.Session to the interactors it will work though so feel free to use your
-//own method
+// GetSessionFromStore returns a session for a given a request and a response
+// This is an exaple of how you could get a session from a store - as long as you're
+// supplying a goth.Session to the interactors it will work though so feel free to use your
+// own method
 func (p *Provider) GetSessionFromStore(request *http.Request, response http.ResponseWriter) (goth.Session, error) {
 	sessionMarshalled, _ := auth.Store.Get(request, "xero"+auth.SessionName)
 	value := sessionMarshalled.Values["xero"]

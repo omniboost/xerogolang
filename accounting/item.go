@@ -5,12 +5,13 @@ import (
 	"encoding/xml"
 	"time"
 
-	"github.com/XeroAPI/xerogolang"
-	"github.com/XeroAPI/xerogolang/helpers"
 	"github.com/markbates/goth"
+	"github.com/omniboost/xerogolang"
+	"github.com/omniboost/xerogolang/helpers"
+	"github.com/shopspring/decimal"
 )
 
-//Item is something that is sold or purchased.  It can have inventory tracked or not tracked.
+// Item is something that is sold or purchased.  It can have inventory tracked or not tracked.
 type Item struct {
 
 	// User defined item code (max length = 30)
@@ -44,10 +45,10 @@ type Item struct {
 	IsTrackedAsInventory bool `json:"IsTrackedAsInventory,omitempty" xml:"-"`
 
 	// The value of the item on hand. Calculated using average cost accounting.
-	TotalCostPool float64 `json:"TotalCostPool,omitempty" xml:"-"`
+	TotalCostPool decimal.Decimal `json:"TotalCostPool,omitempty" xml:"-"`
 
 	// The quantity of the item on hand
-	QuantityOnHand float64 `json:"QuantityOnHand,omitempty" xml:"-"`
+	QuantityOnHand decimal.Decimal `json:"QuantityOnHand,omitempty" xml:"-"`
 
 	// Last modified date in UTC format
 	UpdatedDateUTC string `json:"UpdatedDateUTC,omitempty" xml:"-"`
@@ -56,15 +57,15 @@ type Item struct {
 	ItemID string `json:"ItemID,omitempty" xml:"ItemID,omitempty"`
 }
 
-//Items is a collection of Items
+// Items is a collection of Items
 type Items struct {
 	Items []Item `json:"Items" xml:"Item"`
 }
 
-//PurchaseAndSaleDetails are Elements for Purchases and Sales
+// PurchaseAndSaleDetails are Elements for Purchases and Sales
 type PurchaseAndSaleDetails struct {
 	//Unit Price of the item. By default UnitPrice is returned to two decimal places.  You can use 4 decimal places by adding the unitdp=4 querystring parameter to your request.
-	UnitPrice float64 `json:"UnitPrice,omitempty" xml:"UnitPrice,omitempty"`
+	UnitPrice decimal.Decimal `json:"UnitPrice,omitempty" xml:"UnitPrice,omitempty"`
 
 	//Default account code to be used for purchased/sale. Not applicable to the purchase details of tracked items
 	AccountCode string `json:"AccountCode,omitempty" xml:"AccountCode,omitempty"`
@@ -76,8 +77,8 @@ type PurchaseAndSaleDetails struct {
 	TaxType string `json:"TaxType,omitempty" xml:"TaxType,omitempty"`
 }
 
-//The Xero API returns Dates based on the .Net JSON date format available at the time of development
-//We need to convert these to a more usable format - RFC3339 for consistency with what the API expects to recieve
+// The Xero API returns Dates based on the .Net JSON date format available at the time of development
+// We need to convert these to a more usable format - RFC3339 for consistency with what the API expects to recieve
 func (i *Items) convertDates() error {
 	var err error
 	for n := len(i.Items) - 1; n >= 0; n-- {
@@ -105,8 +106,8 @@ func unmarshalItem(itemResponseBytes []byte) (*Items, error) {
 	return itemResponse, err
 }
 
-//Create will create items given an Items struct
-func (i *Items) Create(provider *xerogolang.Provider, session goth.Session) (*Items, error) {
+// Create will create items given an Items struct
+func (i *Items) Create(provider xerogolang.IProvider, session goth.Session) (*Items, error) {
 	additionalHeaders := map[string]string{
 		"Accept":       "application/json",
 		"Content-Type": "application/xml",
@@ -125,9 +126,9 @@ func (i *Items) Create(provider *xerogolang.Provider, session goth.Session) (*It
 	return unmarshalItem(itemResponseBytes)
 }
 
-//Update will update an item given an Items struct
-//This will only handle single item - you cannot update multiple items in a single call
-func (i *Items) Update(provider *xerogolang.Provider, session goth.Session) (*Items, error) {
+// Update will update an item given an Items struct
+// This will only handle single item - you cannot update multiple items in a single call
+func (i *Items) Update(provider xerogolang.IProvider, session goth.Session) (*Items, error) {
 	additionalHeaders := map[string]string{
 		"Accept":       "application/json",
 		"Content-Type": "application/xml",
@@ -146,9 +147,9 @@ func (i *Items) Update(provider *xerogolang.Provider, session goth.Session) (*It
 	return unmarshalItem(itemResponseBytes)
 }
 
-//FindItemsModifiedSince will get all items modified after a specified date.
-//additional querystringParameters such as where, page, order can be added as a map
-func FindItemsModifiedSince(provider *xerogolang.Provider, session goth.Session, modifiedSince time.Time, querystringParameters map[string]string) (*Items, error) {
+// FindItemsModifiedSince will get all items modified after a specified date.
+// additional querystringParameters such as where, page, order can be added as a map
+func FindItemsModifiedSince(provider xerogolang.IProvider, session goth.Session, modifiedSince time.Time, querystringParameters map[string]string) (*Items, error) {
 	additionalHeaders := map[string]string{
 		"Accept": "application/json",
 	}
@@ -165,13 +166,13 @@ func FindItemsModifiedSince(provider *xerogolang.Provider, session goth.Session,
 	return unmarshalItem(itemResponseBytes)
 }
 
-//FindItems will get all items.
-func FindItems(provider *xerogolang.Provider, session goth.Session, querystringParameters map[string]string) (*Items, error) {
+// FindItems will get all items.
+func FindItems(provider xerogolang.IProvider, session goth.Session, querystringParameters map[string]string) (*Items, error) {
 	return FindItemsModifiedSince(provider, session, dayZero, querystringParameters)
 }
 
-//FindItem will get a single item - itemID must be a GUID for an item
-func FindItem(provider *xerogolang.Provider, session goth.Session, itemID string) (*Items, error) {
+// FindItem will get a single item - itemID must be a GUID for an item
+func FindItem(provider xerogolang.IProvider, session goth.Session, itemID string) (*Items, error) {
 	additionalHeaders := map[string]string{
 		"Accept": "application/json",
 	}
@@ -184,8 +185,8 @@ func FindItem(provider *xerogolang.Provider, session goth.Session, itemID string
 	return unmarshalItem(itemResponseBytes)
 }
 
-//RemoveItem will get a single item - itemID must be a GUID for an item
-func RemoveItem(provider *xerogolang.Provider, session goth.Session, itemID string) (*Items, error) {
+// RemoveItem will get a single item - itemID must be a GUID for an item
+func RemoveItem(provider xerogolang.IProvider, session goth.Session, itemID string) (*Items, error) {
 	additionalHeaders := map[string]string{
 		"Accept": "application/json",
 	}
@@ -198,7 +199,7 @@ func RemoveItem(provider *xerogolang.Provider, session goth.Session, itemID stri
 	return unmarshalItem(itemResponseBytes)
 }
 
-//GenerateExampleItem Creates an Example item
+// GenerateExampleItem Creates an Example item
 func GenerateExampleItem() *Items {
 	item := Item{
 		Code:                "42",
@@ -208,11 +209,11 @@ func GenerateExampleItem() *Items {
 		IsSold:              true,
 		IsPurchased:         true,
 		PurchaseDetails: PurchaseAndSaleDetails{
-			UnitPrice:   140.00,
+			UnitPrice:   decimal.NewFromFloat(140.00),
 			AccountCode: "300",
 		},
 		SalesDetails: PurchaseAndSaleDetails{
-			UnitPrice:   300.00,
+			UnitPrice:   decimal.NewFromFloat(300.00),
 			AccountCode: "200",
 		},
 	}

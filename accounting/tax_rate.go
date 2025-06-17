@@ -4,11 +4,12 @@ import (
 	"encoding/json"
 	"encoding/xml"
 
-	"github.com/XeroAPI/xerogolang"
 	"github.com/markbates/goth"
+	"github.com/omniboost/xerogolang"
+	"github.com/shopspring/decimal"
 )
 
-//TaxRate is a rate at which an item or service is taxed when sold or purchased
+// TaxRate is a rate at which an item or service is taxed when sold or purchased
 type TaxRate struct {
 
 	// Name of tax rate
@@ -42,10 +43,10 @@ type TaxRate struct {
 	CanApplyToRevenue bool `json:"CanApplyToRevenue,omitempty" xml:"CanApplyToRevenue,omitempty"`
 
 	// Tax Rate (decimal to 4dp) e.g 12.5000
-	DisplayTaxRate float64 `json:"DisplayTaxRate,omitempty" xml:"DisplayTaxRate,omitempty"`
+	DisplayTaxRate decimal.Decimal `json:"DisplayTaxRate,omitempty" xml:"DisplayTaxRate,omitempty"`
 
 	// Effective Tax Rate (decimal to 4dp) e.g 12.5000
-	EffectiveRate float64 `json:"EffectiveRate,omitempty" xml:"EffectiveRate,omitempty"`
+	EffectiveRate decimal.Decimal `json:"EffectiveRate,omitempty" xml:"EffectiveRate,omitempty"`
 }
 
 type TaxRates struct {
@@ -62,8 +63,8 @@ func unmarshalTaxRate(taxRateResponseBytes []byte) (*TaxRates, error) {
 	return taxRateResponse, err
 }
 
-//Create will create taxRates given an TaxRates struct
-func (t *TaxRates) Create(provider *xerogolang.Provider, session goth.Session) (*TaxRates, error) {
+// Create will create taxRates given an TaxRates struct
+func (t *TaxRates) Create(provider xerogolang.IProvider, session goth.Session) (*TaxRates, error) {
 	additionalHeaders := map[string]string{
 		"Accept":       "application/json",
 		"Content-Type": "application/xml",
@@ -82,9 +83,9 @@ func (t *TaxRates) Create(provider *xerogolang.Provider, session goth.Session) (
 	return unmarshalTaxRate(taxRateResponseBytes)
 }
 
-//Update will update an taxRate given an TaxRates struct
-//This will only handle a single taxRate - you cannot update multiple taxRates in a single call
-func (t *TaxRates) Update(provider *xerogolang.Provider, session goth.Session) (*TaxRates, error) {
+// Update will update an taxRate given an TaxRates struct
+// This will only handle a single taxRate - you cannot update multiple taxRates in a single call
+func (t *TaxRates) Update(provider xerogolang.IProvider, session goth.Session) (*TaxRates, error) {
 	additionalHeaders := map[string]string{
 		"Accept":       "application/json",
 		"Content-Type": "application/xml",
@@ -103,9 +104,9 @@ func (t *TaxRates) Update(provider *xerogolang.Provider, session goth.Session) (
 	return unmarshalTaxRate(taxRateResponseBytes)
 }
 
-//FindTaxRates will get all TaxRates.
-//additional querystringParameters such as taxType, where and order can be added as a map
-func FindTaxRates(provider *xerogolang.Provider, session goth.Session, querystringParameters map[string]string) (*TaxRates, error) {
+// FindTaxRates will get all TaxRates.
+// additional querystringParameters such as taxType, where and order can be added as a map
+func FindTaxRates(provider xerogolang.IProvider, session goth.Session, querystringParameters map[string]string) (*TaxRates, error) {
 	additionalHeaders := map[string]string{
 		"Accept": "application/json",
 	}
@@ -118,17 +119,17 @@ func FindTaxRates(provider *xerogolang.Provider, session goth.Session, querystri
 	return unmarshalTaxRate(taxRateResponseBytes)
 }
 
-//GenerateExampleTaxRate Creates an Example taxRate
+// GenerateExampleTaxRate Creates an Example taxRate
 func GenerateExampleTaxRate() *TaxRates {
 	taxComponent1 := TaxComponent{
 		Name:       "State Tax",
-		Rate:       7.5,
+		Rate:       decimal.NewFromFloat(7.5),
 		IsCompound: false,
 	}
 
 	taxComponent2 := TaxComponent{
 		Name:       "Local Sales Tax",
-		Rate:       0.625,
+		Rate:       decimal.NewFromFloat(0.625),
 		IsCompound: false,
 	}
 

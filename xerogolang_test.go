@@ -360,7 +360,7 @@ func mockXero(f func(*httptest.Server)) {
 	tokenURL = originalAccessTokenURL
 }
 
-//Test is a tracking category -  we're just testing how the API responds here
+// Test is a tracking category -  we're just testing how the API responds here
 type Test struct {
 
 	// The Xero identifier for a tracking categorye.g. 297c2dc5-cc47-4afd-8ec8-74990b8761e9
@@ -373,7 +373,7 @@ type Test struct {
 	Status string `json:"Status,omitempty" xml:"Status,omitempty"`
 }
 
-//Tests is a collection of Tests
+// Tests is a collection of Tests
 type Tests struct {
 	Tests []Test `json:"TrackingCategories" xml:"TrackingCategories>TrackingCategory"`
 }

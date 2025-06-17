@@ -3,12 +3,12 @@ package accounting
 import (
 	"encoding/json"
 
-	"github.com/XeroAPI/xerogolang"
-	"github.com/XeroAPI/xerogolang/helpers"
 	"github.com/markbates/goth"
+	"github.com/omniboost/xerogolang"
+	"github.com/omniboost/xerogolang/helpers"
 )
 
-//Organisation is information about a Xero organisation
+// Organisation is information about a Xero organisation
 type Organisation struct {
 
 	// Display a unique key used for Xero-to-Xero transactions
@@ -99,13 +99,13 @@ type Organisation struct {
 	ExternalLinks []ExternalLink `json:"ExternalLinks,omitempty"`
 }
 
-//OrganisationCollection contains a collection of Organisations - but there will only ever be one. Like Highlander
+// OrganisationCollection contains a collection of Organisations - but there will only ever be one. Like Highlander
 type OrganisationCollection struct {
 	Organisations []Organisation `json:"Organisations,omitempty"`
 }
 
-//FindOrganisation returns details about the Xero organisation you're connected to
-func FindOrganisation(provider *xerogolang.Provider, session goth.Session) (*OrganisationCollection, error) {
+// FindOrganisation returns details about the Xero organisation you're connected to
+func FindOrganisation(provider xerogolang.IProvider, session goth.Session) (*OrganisationCollection, error) {
 	additionalHeaders := map[string]string{
 		"Accept": "application/json",
 	}

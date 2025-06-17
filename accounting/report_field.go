@@ -1,6 +1,6 @@
 package accounting
 
-//ReportField is an element on a report
+// ReportField is an element on a report
 type ReportField struct {
 	//Name is the ID of the Field
 	FieldID string `json:"FieldID,omitempty" xml:"FieldID,omitempty"`
