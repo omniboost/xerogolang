@@ -1,6 +1,7 @@
 package accounting
 
 import (
+	"context"
 	"encoding/json"
 	"strconv"
 
@@ -67,7 +68,7 @@ func unmarshalReport(reportResponseBytes []byte) (*Reports, error) {
 
 // Run1099 will run the 1099 Report and marshal the results to a Report Struct
 // This Report will only work for US based Organisations
-func Run1099(provider xerogolang.IProvider, session goth.Session, reportYear int) (*Reports, error) {
+func Run1099(ctx context.Context, provider xerogolang.IProvider, session goth.Session, reportYear int) (*Reports, error) {
 	additionalHeaders := map[string]string{
 		"Accept": "application/json",
 	}
@@ -76,7 +77,7 @@ func Run1099(provider xerogolang.IProvider, session goth.Session, reportYear int
 		"reportYear": strconv.Itoa(reportYear),
 	}
 
-	reportResponseBytes, err := provider.Find(session, "Reports/TenNinetyNine", additionalHeaders, querystringParameters)
+	reportResponseBytes, err := provider.Find(ctx, session, "Reports/TenNinetyNine", additionalHeaders, querystringParameters)
 	if err != nil {
 		return nil, err
 	}
@@ -86,7 +87,7 @@ func Run1099(provider xerogolang.IProvider, session goth.Session, reportYear int
 
 // RunAgedPayablesByContact will run the Aged Payables By Contact Report and marshal the results to a Report Struct
 // Date, FromDate and ToDate can be added as optional paramters as a map
-func RunAgedPayablesByContact(provider xerogolang.IProvider, session goth.Session, contactID string, querystringParameters map[string]string) (*Reports, error) {
+func RunAgedPayablesByContact(ctx context.Context, provider xerogolang.IProvider, session goth.Session, contactID string, querystringParameters map[string]string) (*Reports, error) {
 	additionalHeaders := map[string]string{
 		"Accept": "application/json",
 	}
@@ -99,7 +100,7 @@ func RunAgedPayablesByContact(provider xerogolang.IProvider, session goth.Sessio
 		}
 	}
 
-	reportResponseBytes, err := provider.Find(session, "Reports/AgedPayablesByContact", additionalHeaders, querystringParameters)
+	reportResponseBytes, err := provider.Find(ctx, session, "Reports/AgedPayablesByContact", additionalHeaders, querystringParameters)
 	if err != nil {
 		return nil, err
 	}
@@ -109,7 +110,7 @@ func RunAgedPayablesByContact(provider xerogolang.IProvider, session goth.Sessio
 
 // RunAgedReceivablesByContact will run the Aged Receivables By Contact Report and marshal the results to a Report Struct
 // Date, FromDate and ToDate can be added as optional paramters as a map
-func RunAgedReceivablesByContact(provider xerogolang.IProvider, session goth.Session, contactID string, querystringParameters map[string]string) (*Reports, error) {
+func RunAgedReceivablesByContact(ctx context.Context, provider xerogolang.IProvider, session goth.Session, contactID string, querystringParameters map[string]string) (*Reports, error) {
 	additionalHeaders := map[string]string{
 		"Accept": "application/json",
 	}
@@ -122,7 +123,7 @@ func RunAgedReceivablesByContact(provider xerogolang.IProvider, session goth.Ses
 		}
 	}
 
-	reportResponseBytes, err := provider.Find(session, "Reports/AgedReceivablesByContact", additionalHeaders, querystringParameters)
+	reportResponseBytes, err := provider.Find(ctx, session, "Reports/AgedReceivablesByContact", additionalHeaders, querystringParameters)
 	if err != nil {
 		return nil, err
 	}
@@ -132,12 +133,12 @@ func RunAgedReceivablesByContact(provider xerogolang.IProvider, session goth.Ses
 
 // RunBalanceSheet will run the Balance Sheet Report and marshal the results to a Report Struct
 // date, trackingOptionID1, trackingOptionID2, standardLayout, and paymentsOnly can be added as optional paramters as a map
-func RunBalanceSheet(provider xerogolang.IProvider, session goth.Session, querystringParameters map[string]string) (*Reports, error) {
+func RunBalanceSheet(ctx context.Context, provider xerogolang.IProvider, session goth.Session, querystringParameters map[string]string) (*Reports, error) {
 	additionalHeaders := map[string]string{
 		"Accept": "application/json",
 	}
 
-	reportResponseBytes, err := provider.Find(session, "Reports/BalanceSheet", additionalHeaders, querystringParameters)
+	reportResponseBytes, err := provider.Find(ctx, session, "Reports/BalanceSheet", additionalHeaders, querystringParameters)
 	if err != nil {
 		return nil, err
 	}
@@ -147,7 +148,7 @@ func RunBalanceSheet(provider xerogolang.IProvider, session goth.Session, querys
 
 // RunBankStatement will run the Bank Statement Report and marshal the results to a Report Struct
 // FromDate and ToDate can be added as optional paramters as a map
-func RunBankStatement(provider xerogolang.IProvider, session goth.Session, bankAccountID string, querystringParameters map[string]string) (*Reports, error) {
+func RunBankStatement(ctx context.Context, provider xerogolang.IProvider, session goth.Session, bankAccountID string, querystringParameters map[string]string) (*Reports, error) {
 	additionalHeaders := map[string]string{
 		"Accept": "application/json",
 	}
@@ -160,7 +161,7 @@ func RunBankStatement(provider xerogolang.IProvider, session goth.Session, bankA
 		}
 	}
 
-	reportResponseBytes, err := provider.Find(session, "Reports/BankStatement", additionalHeaders, querystringParameters)
+	reportResponseBytes, err := provider.Find(ctx, session, "Reports/BankStatement", additionalHeaders, querystringParameters)
 	if err != nil {
 		return nil, err
 	}
@@ -170,12 +171,12 @@ func RunBankStatement(provider xerogolang.IProvider, session goth.Session, bankA
 
 // RunBankSummary will run the Bank Summary Report and marshal the results to a Report Struct
 // FromDate and ToDate can be added as optional paramters as a map
-func RunBankSummary(provider xerogolang.IProvider, session goth.Session, querystringParameters map[string]string) (*Reports, error) {
+func RunBankSummary(ctx context.Context, provider xerogolang.IProvider, session goth.Session, querystringParameters map[string]string) (*Reports, error) {
 	additionalHeaders := map[string]string{
 		"Accept": "application/json",
 	}
 
-	reportResponseBytes, err := provider.Find(session, "Reports/BankSummary", additionalHeaders, querystringParameters)
+	reportResponseBytes, err := provider.Find(ctx, session, "Reports/BankSummary", additionalHeaders, querystringParameters)
 	if err != nil {
 		return nil, err
 	}
@@ -185,12 +186,12 @@ func RunBankSummary(provider xerogolang.IProvider, session goth.Session, queryst
 
 // RunBASReport will retrieve an individual BAS Report given a reportID and marshal the results to a Report Struct
 // Will only work for AU based Organisations
-func RunBASReport(provider xerogolang.IProvider, session goth.Session, reportID string) (*Reports, error) {
+func RunBASReport(ctx context.Context, provider xerogolang.IProvider, session goth.Session, reportID string) (*Reports, error) {
 	additionalHeaders := map[string]string{
 		"Accept": "application/json",
 	}
 
-	reportResponseBytes, err := provider.Find(session, "Reports/"+reportID, additionalHeaders, nil)
+	reportResponseBytes, err := provider.Find(ctx, session, "Reports/"+reportID, additionalHeaders, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -200,17 +201,17 @@ func RunBASReport(provider xerogolang.IProvider, session goth.Session, reportID 
 
 // RunBASReports will retrieve all BAS Reports and marshal the results to a Report Struct
 // Will only work for AU based Organisations
-func RunBASReports(provider xerogolang.IProvider, session goth.Session) (*Reports, error) {
-	return RunBASReport(provider, session, "")
+func RunBASReports(ctx context.Context, provider xerogolang.IProvider, session goth.Session) (*Reports, error) {
+	return RunBASReport(ctx, provider, session, "")
 }
 
 // RunBudgetSummary will run the Budget Summary Report and marshal the results to a Report Struct
-func RunBudgetSummary(provider xerogolang.IProvider, session goth.Session, querystringParameters map[string]string) (*Reports, error) {
+func RunBudgetSummary(ctx context.Context, provider xerogolang.IProvider, session goth.Session, querystringParameters map[string]string) (*Reports, error) {
 	additionalHeaders := map[string]string{
 		"Accept": "application/json",
 	}
 
-	reportResponseBytes, err := provider.Find(session, "Reports/BudgetSummary", additionalHeaders, querystringParameters)
+	reportResponseBytes, err := provider.Find(ctx, session, "Reports/BudgetSummary", additionalHeaders, querystringParameters)
 	if err != nil {
 		return nil, err
 	}
@@ -220,12 +221,12 @@ func RunBudgetSummary(provider xerogolang.IProvider, session goth.Session, query
 
 // RunExecutiveSummary will run the Executive Summary Report and marshal the results to a Report Struct
 // date can be added as an optional paramter as a map
-func RunExecutiveSummary(provider xerogolang.IProvider, session goth.Session, querystringParameters map[string]string) (*Reports, error) {
+func RunExecutiveSummary(ctx context.Context, provider xerogolang.IProvider, session goth.Session, querystringParameters map[string]string) (*Reports, error) {
 	additionalHeaders := map[string]string{
 		"Accept": "application/json",
 	}
 
-	reportResponseBytes, err := provider.Find(session, "Reports/ExecutiveSummary", additionalHeaders, querystringParameters)
+	reportResponseBytes, err := provider.Find(ctx, session, "Reports/ExecutiveSummary", additionalHeaders, querystringParameters)
 	if err != nil {
 		return nil, err
 	}
@@ -235,12 +236,12 @@ func RunExecutiveSummary(provider xerogolang.IProvider, session goth.Session, qu
 
 // RunGSTReport will retrieve an individual GST Report given a reportID and marshal the results to a Report Struct
 // Will only work for NZ based Organisations
-func RunGSTReport(provider xerogolang.IProvider, session goth.Session, reportID string) (*Reports, error) {
+func RunGSTReport(ctx context.Context, provider xerogolang.IProvider, session goth.Session, reportID string) (*Reports, error) {
 	additionalHeaders := map[string]string{
 		"Accept": "application/json",
 	}
 
-	reportResponseBytes, err := provider.Find(session, "Reports/"+reportID, additionalHeaders, nil)
+	reportResponseBytes, err := provider.Find(ctx, session, "Reports/"+reportID, additionalHeaders, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -250,19 +251,19 @@ func RunGSTReport(provider xerogolang.IProvider, session goth.Session, reportID 
 
 // RunGSTReports will retrieve all GST Reports and marshal the results to a Report Struct
 // Will only work for NZ based Organisations
-func RunGSTReports(provider xerogolang.IProvider, session goth.Session) (*Reports, error) {
-	return RunGSTReport(provider, session, "")
+func RunGSTReports(ctx context.Context, provider xerogolang.IProvider, session goth.Session) (*Reports, error) {
+	return RunGSTReport(ctx, provider, session, "")
 }
 
 // RunProfitAndLoss will run the Profit And Loss Report and marshal the results to a Report Struct
 // date, trackingCategoryID, trackingOptionID, trackingCategoryID2, trackingOptionID2,
 // standardLayout, and paymentsOnly can be added as optional paramters as a map
-func RunProfitAndLoss(provider xerogolang.IProvider, session goth.Session, querystringParameters map[string]string) (*Reports, error) {
+func RunProfitAndLoss(ctx context.Context, provider xerogolang.IProvider, session goth.Session, querystringParameters map[string]string) (*Reports, error) {
 	additionalHeaders := map[string]string{
 		"Accept": "application/json",
 	}
 
-	reportResponseBytes, err := provider.Find(session, "Reports/ProfitAndLoss", additionalHeaders, querystringParameters)
+	reportResponseBytes, err := provider.Find(ctx, session, "Reports/ProfitAndLoss", additionalHeaders, querystringParameters)
 	if err != nil {
 		return nil, err
 	}
@@ -272,12 +273,12 @@ func RunProfitAndLoss(provider xerogolang.IProvider, session goth.Session, query
 
 // RunTrialBalance will run the TrialBalance Report and marshal the results to a Report Struct
 // date and paymentsOnly can be added as optional paramters as a map
-func RunTrialBalance(provider xerogolang.IProvider, session goth.Session, querystringParameters map[string]string) (*Reports, error) {
+func RunTrialBalance(ctx context.Context, provider xerogolang.IProvider, session goth.Session, querystringParameters map[string]string) (*Reports, error) {
 	additionalHeaders := map[string]string{
 		"Accept": "application/json",
 	}
 
-	reportResponseBytes, err := provider.Find(session, "Reports/TrialBalance", additionalHeaders, querystringParameters)
+	reportResponseBytes, err := provider.Find(ctx, session, "Reports/TrialBalance", additionalHeaders, querystringParameters)
 	if err != nil {
 		return nil, err
 	}

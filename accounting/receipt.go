@@ -1,6 +1,7 @@
 package accounting
 
 import (
+	"context"
 	"encoding/json"
 	"encoding/xml"
 	"time"
@@ -98,7 +99,7 @@ func unmarshalReceipt(receiptResponseBytes []byte) (*Receipts, error) {
 }
 
 // Create will create receipts given an Receipts struct
-func (r *Receipts) Create(provider xerogolang.IProvider, session goth.Session) (*Receipts, error) {
+func (r *Receipts) Create(ctx context.Context, provider xerogolang.IProvider, session goth.Session) (*Receipts, error) {
 	additionalHeaders := map[string]string{
 		"Accept":       "application/json",
 		"Content-Type": "application/xml",
@@ -109,7 +110,7 @@ func (r *Receipts) Create(provider xerogolang.IProvider, session goth.Session) (
 		return nil, err
 	}
 
-	receiptResponseBytes, err := provider.Create(session, "Receipts", additionalHeaders, body)
+	receiptResponseBytes, err := provider.Create(ctx, session, "Receipts", additionalHeaders, body)
 	if err != nil {
 		return nil, err
 	}
@@ -119,7 +120,7 @@ func (r *Receipts) Create(provider xerogolang.IProvider, session goth.Session) (
 
 // Update will update an receipt given an Receipts struct
 // This will only handle single receipt - you cannot update multiple receipts in a single call
-func (r *Receipts) Update(provider xerogolang.IProvider, session goth.Session) (*Receipts, error) {
+func (r *Receipts) Update(ctx context.Context, provider xerogolang.IProvider, session goth.Session) (*Receipts, error) {
 	additionalHeaders := map[string]string{
 		"Accept":       "application/json",
 		"Content-Type": "application/xml",
@@ -141,7 +142,7 @@ func (r *Receipts) Update(provider xerogolang.IProvider, session goth.Session) (
 		return nil, err
 	}
 
-	receiptResponseBytes, err := provider.Update(session, "Receipts/"+r.Receipts[0].ReceiptID, additionalHeaders, body)
+	receiptResponseBytes, err := provider.Update(ctx, session, "Receipts/"+r.Receipts[0].ReceiptID, additionalHeaders, body)
 	if err != nil {
 		return nil, err
 	}
@@ -153,7 +154,7 @@ func (r *Receipts) Update(provider xerogolang.IProvider, session goth.Session) (
 // These Receipts will not have details like default line items by default.
 // If you need details then add a 'page' querystringParameter and get 100 Receipts at a time
 // additional querystringParameters such as where, page, order can be added as a map
-func FindReceiptsModifiedSince(provider xerogolang.IProvider, session goth.Session, modifiedSince time.Time, querystringParameters map[string]string) (*Receipts, error) {
+func FindReceiptsModifiedSince(ctx context.Context, provider xerogolang.IProvider, session goth.Session, modifiedSince time.Time, querystringParameters map[string]string) (*Receipts, error) {
 	additionalHeaders := map[string]string{
 		"Accept": "application/json",
 	}
@@ -162,7 +163,7 @@ func FindReceiptsModifiedSince(provider xerogolang.IProvider, session goth.Sessi
 		additionalHeaders["If-Modified-Since"] = modifiedSince.Format(time.RFC3339)
 	}
 
-	receiptResponseBytes, err := provider.Find(session, "Receipts", additionalHeaders, querystringParameters)
+	receiptResponseBytes, err := provider.Find(ctx, session, "Receipts", additionalHeaders, querystringParameters)
 	if err != nil {
 		return nil, err
 	}
@@ -173,17 +174,17 @@ func FindReceiptsModifiedSince(provider xerogolang.IProvider, session goth.Sessi
 // FindReceipts will get all Receipts. These Receipt will not have details like line items by default.
 // If you need details then add a 'page' querystringParameter and get 100 Receipts at a time
 // additional querystringParameters such as where, page, order can be added as a map
-func FindReceipts(provider xerogolang.IProvider, session goth.Session, querystringParameters map[string]string) (*Receipts, error) {
-	return FindReceiptsModifiedSince(provider, session, dayZero, querystringParameters)
+func FindReceipts(ctx context.Context, provider xerogolang.IProvider, session goth.Session, querystringParameters map[string]string) (*Receipts, error) {
+	return FindReceiptsModifiedSince(ctx, provider, session, dayZero, querystringParameters)
 }
 
 // FindReceipt will get a single receipt - receiptID can be a GUID for an receipt or an receipt number
-func FindReceipt(provider xerogolang.IProvider, session goth.Session, receiptID string) (*Receipts, error) {
+func FindReceipt(ctx context.Context, provider xerogolang.IProvider, session goth.Session, receiptID string) (*Receipts, error) {
 	additionalHeaders := map[string]string{
 		"Accept": "application/json",
 	}
 
-	receiptResponseBytes, err := provider.Find(session, "Receipts/"+receiptID, additionalHeaders, nil)
+	receiptResponseBytes, err := provider.Find(ctx, session, "Receipts/"+receiptID, additionalHeaders, nil)
 	if err != nil {
 		return nil, err
 	}

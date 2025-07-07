@@ -1,6 +1,7 @@
 package accounting
 
 import (
+	"context"
 	"encoding/json"
 	"encoding/xml"
 	"time"
@@ -80,7 +81,7 @@ func unmarshalLinkedTransaction(linkedTransactionResponseBytes []byte) (*LinkedT
 }
 
 // Create will create LinkedTransactions given an LinkedTransactions struct
-func (l *LinkedTransactions) Create(provider xerogolang.IProvider, session goth.Session) (*LinkedTransactions, error) {
+func (l *LinkedTransactions) Create(ctx context.Context, provider xerogolang.IProvider, session goth.Session) (*LinkedTransactions, error) {
 	additionalHeaders := map[string]string{
 		"Accept":       "application/json",
 		"Content-Type": "application/xml",
@@ -91,7 +92,7 @@ func (l *LinkedTransactions) Create(provider xerogolang.IProvider, session goth.
 		return nil, err
 	}
 
-	linkedTransactionResponseBytes, err := provider.Create(session, "LinkedTransactions", additionalHeaders, body)
+	linkedTransactionResponseBytes, err := provider.Create(ctx, session, "LinkedTransactions", additionalHeaders, body)
 	if err != nil {
 		return nil, err
 	}
@@ -102,7 +103,7 @@ func (l *LinkedTransactions) Create(provider xerogolang.IProvider, session goth.
 // Update will update an LinkedTransaction given an LinkedTransactions struct
 // This will only handle single LinkedTransaction - you cannot update multiple LinkedTransactions in a single call
 // LinkedTransactions cannot be modified, only created and deleted.
-func (l *LinkedTransactions) Update(provider xerogolang.IProvider, session goth.Session) (*LinkedTransactions, error) {
+func (l *LinkedTransactions) Update(ctx context.Context, provider xerogolang.IProvider, session goth.Session) (*LinkedTransactions, error) {
 	additionalHeaders := map[string]string{
 		"Accept":       "application/json",
 		"Content-Type": "application/xml",
@@ -113,7 +114,7 @@ func (l *LinkedTransactions) Update(provider xerogolang.IProvider, session goth.
 		return nil, err
 	}
 
-	LinkedTransactionResponseBytes, err := provider.Update(session, "LinkedTransactions/"+l.LinkedTransactions[0].LinkedTransactionID, additionalHeaders, body)
+	LinkedTransactionResponseBytes, err := provider.Update(ctx, session, "LinkedTransactions/"+l.LinkedTransactions[0].LinkedTransactionID, additionalHeaders, body)
 	if err != nil {
 		return nil, err
 	}
@@ -124,7 +125,7 @@ func (l *LinkedTransactions) Update(provider xerogolang.IProvider, session goth.
 // FindLinkedTransactionsModifiedSince will get all LinkedTransactions modified after a specified date.
 // additional querystringParameters such as page, SourceTransactionID, ContactID,
 // Status, and TargetTransactionID can be added as a map
-func FindLinkedTransactionsModifiedSince(provider xerogolang.IProvider, session goth.Session, modifiedSince time.Time, querystringParameters map[string]string) (*LinkedTransactions, error) {
+func FindLinkedTransactionsModifiedSince(ctx context.Context, provider xerogolang.IProvider, session goth.Session, modifiedSince time.Time, querystringParameters map[string]string) (*LinkedTransactions, error) {
 	additionalHeaders := map[string]string{
 		"Accept": "application/json",
 	}
@@ -133,7 +134,7 @@ func FindLinkedTransactionsModifiedSince(provider xerogolang.IProvider, session 
 		additionalHeaders["If-Modified-Since"] = modifiedSince.Format(time.RFC3339)
 	}
 
-	linkedTransactionResponseBytes, err := provider.Find(session, "LinkedTransactions", additionalHeaders, querystringParameters)
+	linkedTransactionResponseBytes, err := provider.Find(ctx, session, "LinkedTransactions", additionalHeaders, querystringParameters)
 	if err != nil {
 		return nil, err
 	}
@@ -144,17 +145,17 @@ func FindLinkedTransactionsModifiedSince(provider xerogolang.IProvider, session 
 // FindLinkedTransactions will get all LinkedTransactions.
 // additional querystringParameters such as page, SourceTransactionID, ContactID,
 // Status, and TargetTransactionID can be added as a map
-func FindLinkedTransactions(provider xerogolang.IProvider, session goth.Session, querystringParameters map[string]string) (*LinkedTransactions, error) {
-	return FindLinkedTransactionsModifiedSince(provider, session, dayZero, querystringParameters)
+func FindLinkedTransactions(ctx context.Context, provider xerogolang.IProvider, session goth.Session, querystringParameters map[string]string) (*LinkedTransactions, error) {
+	return FindLinkedTransactionsModifiedSince(ctx, provider, session, dayZero, querystringParameters)
 }
 
 // FindLinkedTransaction will get a single LinkedTransaction - LinkedTransactionID must be a GUID for an LinkedTransaction
-func FindLinkedTransaction(provider xerogolang.IProvider, session goth.Session, linkedTransactionID string) (*LinkedTransactions, error) {
+func FindLinkedTransaction(ctx context.Context, provider xerogolang.IProvider, session goth.Session, linkedTransactionID string) (*LinkedTransactions, error) {
 	additionalHeaders := map[string]string{
 		"Accept": "application/json",
 	}
 
-	linkedTransactionResponseBytes, err := provider.Find(session, "LinkedTransactions/"+linkedTransactionID, additionalHeaders, nil)
+	linkedTransactionResponseBytes, err := provider.Find(ctx, session, "LinkedTransactions/"+linkedTransactionID, additionalHeaders, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -163,12 +164,12 @@ func FindLinkedTransaction(provider xerogolang.IProvider, session goth.Session, 
 }
 
 // RemoveLinkedTransaction will get a single LinkedTransaction - LinkedTransactionID must be a GUID for an LinkedTransaction
-func RemoveLinkedTransaction(provider xerogolang.IProvider, session goth.Session, linkedTransactionID string) (*LinkedTransactions, error) {
+func RemoveLinkedTransaction(ctx context.Context, provider xerogolang.IProvider, session goth.Session, linkedTransactionID string) (*LinkedTransactions, error) {
 	additionalHeaders := map[string]string{
 		"Accept": "application/json",
 	}
 
-	linkedTransactionResponseBytes, err := provider.Remove(session, "LinkedTransactions/"+linkedTransactionID, additionalHeaders)
+	linkedTransactionResponseBytes, err := provider.Remove(ctx, session, "LinkedTransactions/"+linkedTransactionID, additionalHeaders)
 	if err != nil {
 		return nil, err
 	}

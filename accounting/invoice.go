@@ -1,6 +1,7 @@
 package accounting
 
 import (
+	"context"
 	"encoding/json"
 	"time"
 
@@ -145,7 +146,7 @@ func unmarshalInvoice(invoiceResponseBytes []byte) (*Invoices, error) {
 }
 
 // Create will create invoices given an Invoices struct
-func (i *Invoices) Create(provider xerogolang.IProvider, session goth.Session) (*Invoices, error) {
+func (i *Invoices) Create(ctx context.Context, provider xerogolang.IProvider, session goth.Session) (*Invoices, error) {
 	additionalHeaders := map[string]string{
 		"Accept":       "application/json",
 		"Content-Type": "application/json",
@@ -156,7 +157,7 @@ func (i *Invoices) Create(provider xerogolang.IProvider, session goth.Session) (
 		return nil, err
 	}
 
-	invoiceResponseBytes, err := provider.Create(session, "Invoices", additionalHeaders, body)
+	invoiceResponseBytes, err := provider.Create(ctx, session, "Invoices", additionalHeaders, body)
 	if err != nil {
 		return nil, err
 	}
@@ -166,7 +167,7 @@ func (i *Invoices) Create(provider xerogolang.IProvider, session goth.Session) (
 
 // Update will update an invoice given an Invoices struct
 // This will only handle single invoice - you cannot update multiple invoices in a single call
-func (i *Invoices) Update(provider xerogolang.IProvider, session goth.Session) (*Invoices, error) {
+func (i *Invoices) Update(ctx context.Context, provider xerogolang.IProvider, session goth.Session) (*Invoices, error) {
 	additionalHeaders := map[string]string{
 		"Accept":       "application/json",
 		"Content-Type": "application/json",
@@ -177,7 +178,7 @@ func (i *Invoices) Update(provider xerogolang.IProvider, session goth.Session) (
 		return nil, err
 	}
 
-	invoiceResponseBytes, err := provider.Update(session, "Invoices/"+i.Invoices[0].InvoiceID, additionalHeaders, body)
+	invoiceResponseBytes, err := provider.Update(ctx, session, "Invoices/"+i.Invoices[0].InvoiceID, additionalHeaders, body)
 	if err != nil {
 		return nil, err
 	}
@@ -189,7 +190,7 @@ func (i *Invoices) Update(provider xerogolang.IProvider, session goth.Session) (
 // These Invoices will not have details like default line items by default.
 // If you need details then add a 'page' querystringParameter and get 100 Invoices at a time
 // additional querystringParameters such as where, page, order can be added as a map
-func FindInvoicesModifiedSince(provider xerogolang.IProvider, session goth.Session, modifiedSince time.Time, querystringParameters map[string]string) (*Invoices, error) {
+func FindInvoicesModifiedSince(ctx context.Context, provider xerogolang.IProvider, session goth.Session, modifiedSince time.Time, querystringParameters map[string]string) (*Invoices, error) {
 	additionalHeaders := map[string]string{
 		"Accept": "application/json",
 	}
@@ -198,7 +199,7 @@ func FindInvoicesModifiedSince(provider xerogolang.IProvider, session goth.Sessi
 		additionalHeaders["If-Modified-Since"] = modifiedSince.Format(time.RFC3339)
 	}
 
-	invoiceResponseBytes, err := provider.Find(session, "Invoices", additionalHeaders, querystringParameters)
+	invoiceResponseBytes, err := provider.Find(ctx, session, "Invoices", additionalHeaders, querystringParameters)
 	if err != nil {
 		return nil, err
 	}
@@ -209,17 +210,17 @@ func FindInvoicesModifiedSince(provider xerogolang.IProvider, session goth.Sessi
 // FindInvoices will get all Invoices. These Invoice will not have details like line items by default.
 // If you need details then add a 'page' querystringParameter and get 100 Invoices at a time
 // additional querystringParameters such as where, page, order can be added as a map
-func FindInvoices(provider xerogolang.IProvider, session goth.Session, querystringParameters map[string]string) (*Invoices, error) {
-	return FindInvoicesModifiedSince(provider, session, dayZero, querystringParameters)
+func FindInvoices(ctx context.Context, provider xerogolang.IProvider, session goth.Session, querystringParameters map[string]string) (*Invoices, error) {
+	return FindInvoicesModifiedSince(ctx, provider, session, dayZero, querystringParameters)
 }
 
 // FindInvoice will get a single invoice - invoiceID can be a GUID for an invoice or an invoice number
-func FindInvoice(provider xerogolang.IProvider, session goth.Session, invoiceID string) (*Invoices, error) {
+func FindInvoice(ctx context.Context, provider xerogolang.IProvider, session goth.Session, invoiceID string) (*Invoices, error) {
 	additionalHeaders := map[string]string{
 		"Accept": "application/json",
 	}
 
-	invoiceResponseBytes, err := provider.Find(session, "Invoices/"+invoiceID, additionalHeaders, nil)
+	invoiceResponseBytes, err := provider.Find(ctx, session, "Invoices/"+invoiceID, additionalHeaders, nil)
 	if err != nil {
 		return nil, err
 	}

@@ -1,6 +1,7 @@
 package accounting
 
 import (
+	"context"
 	"encoding/json"
 
 	"github.com/markbates/goth"
@@ -59,12 +60,12 @@ func unmarshalBrandingTheme(brandingThemeResponseBytes []byte) (*BrandingThemes,
 }
 
 // FindBrandingThemes will get all BrandingThemes.
-func FindBrandingThemes(provider xerogolang.IProvider, session goth.Session) (*BrandingThemes, error) {
+func FindBrandingThemes(ctx context.Context, provider xerogolang.IProvider, session goth.Session) (*BrandingThemes, error) {
 	additionalHeaders := map[string]string{
 		"Accept": "application/json",
 	}
 
-	brandingThemeResponseBytes, err := provider.Find(session, "BrandingThemes", additionalHeaders, nil)
+	brandingThemeResponseBytes, err := provider.Find(ctx, session, "BrandingThemes", additionalHeaders, nil)
 	if err != nil {
 		return nil, err
 	}

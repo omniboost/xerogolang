@@ -1,6 +1,7 @@
 package accounting
 
 import (
+	"context"
 	"encoding/json"
 	"encoding/xml"
 
@@ -40,7 +41,7 @@ func unmarshalTrackingCategory(trackingCategoryResponseBytes []byte) (*TrackingC
 }
 
 // Create will create trackingCategories given an TrackingCategories struct
-func (t *TrackingCategories) Create(provider xerogolang.IProvider, session goth.Session) (*TrackingCategories, error) {
+func (t *TrackingCategories) Create(ctx context.Context, provider xerogolang.IProvider, session goth.Session) (*TrackingCategories, error) {
 	additionalHeaders := map[string]string{
 		"Accept":       "application/json",
 		"Content-Type": "application/xml",
@@ -51,7 +52,7 @@ func (t *TrackingCategories) Create(provider xerogolang.IProvider, session goth.
 		return nil, err
 	}
 
-	trackingCategoryResponseBytes, err := provider.Create(session, "TrackingCategories", additionalHeaders, body)
+	trackingCategoryResponseBytes, err := provider.Create(ctx, session, "TrackingCategories", additionalHeaders, body)
 	if err != nil {
 		return nil, err
 	}
@@ -61,7 +62,7 @@ func (t *TrackingCategories) Create(provider xerogolang.IProvider, session goth.
 
 // Update will update an trackingCategory given an TrackingCategories struct
 // This will only handle single trackingCategory - you cannot update multiple trackingCategories in a single call
-func (t *TrackingCategories) Update(provider xerogolang.IProvider, session goth.Session) (*TrackingCategories, error) {
+func (t *TrackingCategories) Update(ctx context.Context, provider xerogolang.IProvider, session goth.Session) (*TrackingCategories, error) {
 	additionalHeaders := map[string]string{
 		"Accept":       "application/json",
 		"Content-Type": "application/xml",
@@ -72,7 +73,7 @@ func (t *TrackingCategories) Update(provider xerogolang.IProvider, session goth.
 		return nil, err
 	}
 
-	trackingCategoryResponseBytes, err := provider.Update(session, "TrackingCategories/"+t.TrackingCategories[0].TrackingCategoryID, additionalHeaders, body)
+	trackingCategoryResponseBytes, err := provider.Update(ctx, session, "TrackingCategories/"+t.TrackingCategories[0].TrackingCategoryID, additionalHeaders, body)
 	if err != nil {
 		return nil, err
 	}
@@ -81,12 +82,12 @@ func (t *TrackingCategories) Update(provider xerogolang.IProvider, session goth.
 }
 
 // FindTrackingCategories will get all trackingCategories
-func FindTrackingCategories(provider xerogolang.IProvider, session goth.Session) (*TrackingCategories, error) {
+func FindTrackingCategories(ctx context.Context, provider xerogolang.IProvider, session goth.Session) (*TrackingCategories, error) {
 	additionalHeaders := map[string]string{
 		"Accept": "application/json",
 	}
 
-	trackingCategoryResponseBytes, err := provider.Find(session, "TrackingCategories", additionalHeaders, nil)
+	trackingCategoryResponseBytes, err := provider.Find(ctx, session, "TrackingCategories", additionalHeaders, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -95,12 +96,12 @@ func FindTrackingCategories(provider xerogolang.IProvider, session goth.Session)
 }
 
 // FindTrackingCategory will get a single trackingCategory - trackingCategoryID must be a GUID for an trackingCategory
-func FindTrackingCategory(provider xerogolang.IProvider, session goth.Session, trackingCategoryID string) (*TrackingCategories, error) {
+func FindTrackingCategory(ctx context.Context, provider xerogolang.IProvider, session goth.Session, trackingCategoryID string) (*TrackingCategories, error) {
 	additionalHeaders := map[string]string{
 		"Accept": "application/json",
 	}
 
-	trackingCategoryResponseBytes, err := provider.Find(session, "TrackingCategories/"+trackingCategoryID, additionalHeaders, nil)
+	trackingCategoryResponseBytes, err := provider.Find(ctx, session, "TrackingCategories/"+trackingCategoryID, additionalHeaders, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -109,12 +110,12 @@ func FindTrackingCategory(provider xerogolang.IProvider, session goth.Session, t
 }
 
 // RemoveTrackingCategory will get a single trackingCategory - trackingCategoryID must be a GUID for an trackingCategory
-func RemoveTrackingCategory(provider xerogolang.IProvider, session goth.Session, trackingCategoryID string) (*TrackingCategories, error) {
+func RemoveTrackingCategory(ctx context.Context, provider xerogolang.IProvider, session goth.Session, trackingCategoryID string) (*TrackingCategories, error) {
 	additionalHeaders := map[string]string{
 		"Accept": "application/json",
 	}
 
-	trackingCategoryResponseBytes, err := provider.Remove(session, "TrackingCategories/"+trackingCategoryID, additionalHeaders)
+	trackingCategoryResponseBytes, err := provider.Remove(ctx, session, "TrackingCategories/"+trackingCategoryID, additionalHeaders)
 	if err != nil {
 		return nil, err
 	}

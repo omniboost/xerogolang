@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"html/template"
 	"net/http"
@@ -56,7 +57,7 @@ func indexHandler(res http.ResponseWriter, req *http.Request) {
 		t, _ := template.New("foo").Parse(indexNotConnectedTemplate)
 		t.Execute(res, nil)
 	} else {
-		organisationCollection, err := accounting.FindOrganisation(provider, session)
+		organisationCollection, err := accounting.FindOrganisation(context.Background(), provider, session)
 		if err != nil {
 			fmt.Fprintln(res, err)
 			return
@@ -100,7 +101,7 @@ func createHandler(res http.ResponseWriter, req *http.Request) {
 	switch object {
 	case "invoice":
 		invoices = accounting.GenerateExampleInvoice()
-		invoiceCollection, err := invoices.Create(provider, session)
+		invoiceCollection, err := invoices.Create(context.Background(), provider, session)
 		if err != nil {
 			fmt.Fprintln(res, err)
 			return
@@ -110,7 +111,7 @@ func createHandler(res http.ResponseWriter, req *http.Request) {
 		t.Execute(res, invoiceCollection.Invoices[0])
 	case "contact":
 		contacts = accounting.GenerateExampleContact()
-		contactCollection, err := contacts.Create(provider, session)
+		contactCollection, err := contacts.Create(context.Background(), provider, session)
 		if err != nil {
 			fmt.Fprintln(res, err)
 			return
@@ -120,7 +121,7 @@ func createHandler(res http.ResponseWriter, req *http.Request) {
 		t.Execute(res, contactCollection.Contacts[0])
 	case "account":
 		accounts = accounting.GenerateExampleAccount()
-		accountCollection, err := accounts.Create(provider, session)
+		accountCollection, err := accounts.Create(context.Background(), provider, session)
 		if err != nil {
 			fmt.Fprintln(res, err)
 			return
@@ -130,7 +131,7 @@ func createHandler(res http.ResponseWriter, req *http.Request) {
 		t.Execute(res, accountCollection.Accounts[0])
 	case "banktransaction":
 		bankTransactions = accounting.GenerateExampleBankTransaction()
-		bankTransactionCollection, err := bankTransactions.Create(provider, session)
+		bankTransactionCollection, err := bankTransactions.Create(context.Background(), provider, session)
 		if err != nil {
 			fmt.Fprintln(res, err)
 			return
@@ -140,7 +141,7 @@ func createHandler(res http.ResponseWriter, req *http.Request) {
 		t.Execute(res, bankTransactionCollection.BankTransactions[0])
 	case "creditnote":
 		creditNotes = accounting.GenerateExampleCreditNote()
-		creditNoteCollection, err := creditNotes.Create(provider, session)
+		creditNoteCollection, err := creditNotes.Create(context.Background(), provider, session)
 		if err != nil {
 			fmt.Fprintln(res, err)
 			return
@@ -150,7 +151,7 @@ func createHandler(res http.ResponseWriter, req *http.Request) {
 		t.Execute(res, creditNoteCollection.CreditNotes[0])
 	case "contactgroup":
 		contactGroups = accounting.GenerateExampleContactGroup()
-		contactGroupCollection, err := contactGroups.Create(provider, session)
+		contactGroupCollection, err := contactGroups.Create(context.Background(), provider, session)
 		if err != nil {
 			fmt.Fprintln(res, err)
 			return
@@ -160,7 +161,7 @@ func createHandler(res http.ResponseWriter, req *http.Request) {
 		t.Execute(res, contactGroupCollection.ContactGroups[0])
 	case "item":
 		items = accounting.GenerateExampleItem()
-		itemCollection, err := items.Create(provider, session)
+		itemCollection, err := items.Create(context.Background(), provider, session)
 		if err != nil {
 			fmt.Fprintln(res, err)
 			return
@@ -170,7 +171,7 @@ func createHandler(res http.ResponseWriter, req *http.Request) {
 		t.Execute(res, itemCollection.Items[0])
 	case "manualjournal":
 		manualJournals = accounting.GenerateExampleManualJournal()
-		manualJournalCollection, err := manualJournals.Create(provider, session)
+		manualJournalCollection, err := manualJournals.Create(context.Background(), provider, session)
 		if err != nil {
 			fmt.Fprintln(res, err)
 			return
@@ -180,7 +181,7 @@ func createHandler(res http.ResponseWriter, req *http.Request) {
 		t.Execute(res, manualJournalCollection.ManualJournals[0])
 	case "purchaseorder":
 		purchaseOrders = accounting.GenerateExamplePurchaseOrder("")
-		purchaseOrderCollection, err := purchaseOrders.Create(provider, session)
+		purchaseOrderCollection, err := purchaseOrders.Create(context.Background(), provider, session)
 		if err != nil {
 			fmt.Fprintln(res, err)
 			return
@@ -190,7 +191,7 @@ func createHandler(res http.ResponseWriter, req *http.Request) {
 		t.Execute(res, purchaseOrderCollection.PurchaseOrders[0])
 	case "trackingcategory":
 		trackingCategories = accounting.GenerateExampleTrackingCategory()
-		trackingCategoryCollection, err := trackingCategories.Create(provider, session)
+		trackingCategoryCollection, err := trackingCategories.Create(context.Background(), provider, session)
 		if err != nil {
 			fmt.Fprintln(res, err)
 			return
@@ -200,7 +201,7 @@ func createHandler(res http.ResponseWriter, req *http.Request) {
 		t.Execute(res, trackingCategoryCollection.TrackingCategories[0])
 	case "taxrate":
 		taxRates = accounting.GenerateExampleTaxRate()
-		taxRateCollection, err := taxRates.Create(provider, session)
+		taxRateCollection, err := taxRates.Create(context.Background(), provider, session)
 		if err != nil {
 			fmt.Fprintln(res, err)
 			return
@@ -210,7 +211,7 @@ func createHandler(res http.ResponseWriter, req *http.Request) {
 		t.Execute(res, taxRateCollection.TaxRates[0])
 	case "banktransfer":
 		bankTransfers = accounting.GenerateExampleBankTransfer()
-		bankTransferCollection, err := bankTransfers.Create(provider, session)
+		bankTransferCollection, err := bankTransfers.Create(context.Background(), provider, session)
 		if err != nil {
 			fmt.Fprintln(res, err)
 			return
@@ -243,7 +244,7 @@ func findHandler(res http.ResponseWriter, req *http.Request) {
 	id := vars["id"]
 	switch object {
 	case "invoice":
-		invoiceCollection, err := accounting.FindInvoice(provider, session, id)
+		invoiceCollection, err := accounting.FindInvoice(context.Background(), provider, session, id)
 		if err != nil {
 			fmt.Fprintln(res, err)
 			return
@@ -253,7 +254,7 @@ func findHandler(res http.ResponseWriter, req *http.Request) {
 		t, _ := template.New("foo").Parse(invoiceTemplate)
 		t.Execute(res, invoiceCollection.Invoices[0])
 	case "contact":
-		contactCollection, err := accounting.FindContact(provider, session, id)
+		contactCollection, err := accounting.FindContact(context.Background(), provider, session, id)
 		if err != nil {
 			fmt.Fprintln(res, err)
 			return
@@ -263,7 +264,7 @@ func findHandler(res http.ResponseWriter, req *http.Request) {
 		t, _ := template.New("foo").Parse(contactTemplate)
 		t.Execute(res, contactCollection.Contacts[0])
 	case "account":
-		accountCollection, err := accounting.FindAccount(provider, session, id)
+		accountCollection, err := accounting.FindAccount(context.Background(), provider, session, id)
 		if err != nil {
 			fmt.Fprintln(res, err)
 			return
@@ -273,7 +274,7 @@ func findHandler(res http.ResponseWriter, req *http.Request) {
 		t, _ := template.New("foo").Parse(accountTemplate)
 		t.Execute(res, accountCollection.Accounts[0])
 	case "banktransaction":
-		bankTransactionCollection, err := accounting.FindBankTransaction(provider, session, id)
+		bankTransactionCollection, err := accounting.FindBankTransaction(context.Background(), provider, session, id)
 		if err != nil {
 			fmt.Fprintln(res, err)
 			return
@@ -283,7 +284,7 @@ func findHandler(res http.ResponseWriter, req *http.Request) {
 		t, _ := template.New("foo").Parse(bankTransactionTemplate)
 		t.Execute(res, bankTransactionCollection.BankTransactions[0])
 	case "creditnote":
-		creditNoteCollection, err := accounting.FindCreditNote(provider, session, id)
+		creditNoteCollection, err := accounting.FindCreditNote(context.Background(), provider, session, id)
 		if err != nil {
 			fmt.Fprintln(res, err)
 			return
@@ -293,7 +294,7 @@ func findHandler(res http.ResponseWriter, req *http.Request) {
 		t, _ := template.New("foo").Parse(creditNoteTemplate)
 		t.Execute(res, creditNoteCollection.CreditNotes[0])
 	case "contactgroup":
-		contactGroupCollection, err := accounting.FindContactGroup(provider, session, id)
+		contactGroupCollection, err := accounting.FindContactGroup(context.Background(), provider, session, id)
 		if err != nil {
 			fmt.Fprintln(res, err)
 			return
@@ -303,7 +304,7 @@ func findHandler(res http.ResponseWriter, req *http.Request) {
 		t, _ := template.New("foo").Parse(contactGroupTemplate)
 		t.Execute(res, contactGroupCollection.ContactGroups[0])
 	case "item":
-		itemCollection, err := accounting.FindItem(provider, session, id)
+		itemCollection, err := accounting.FindItem(context.Background(), provider, session, id)
 		if err != nil {
 			fmt.Fprintln(res, err)
 			return
@@ -313,7 +314,7 @@ func findHandler(res http.ResponseWriter, req *http.Request) {
 		t, _ := template.New("foo").Parse(itemTemplate)
 		t.Execute(res, itemCollection.Items[0])
 	case "journal":
-		journalCollection, err := accounting.FindJournal(provider, session, id)
+		journalCollection, err := accounting.FindJournal(context.Background(), provider, session, id)
 		if err != nil {
 			fmt.Fprintln(res, err)
 			return
@@ -323,7 +324,7 @@ func findHandler(res http.ResponseWriter, req *http.Request) {
 		t, _ := template.New("foo").Parse(journalTemplate)
 		t.Execute(res, journalCollection.Journals[0])
 	case "manualjournal":
-		manualJournalCollection, err := accounting.FindManualJournal(provider, session, id)
+		manualJournalCollection, err := accounting.FindManualJournal(context.Background(), provider, session, id)
 		if err != nil {
 			fmt.Fprintln(res, err)
 			return
@@ -333,7 +334,7 @@ func findHandler(res http.ResponseWriter, req *http.Request) {
 		t, _ := template.New("foo").Parse(manualJournalTemplate)
 		t.Execute(res, manualJournalCollection.ManualJournals[0])
 	case "payment":
-		paymentCollection, err := accounting.FindPayment(provider, session, id)
+		paymentCollection, err := accounting.FindPayment(context.Background(), provider, session, id)
 		if err != nil {
 			fmt.Fprintln(res, err)
 			return
@@ -343,7 +344,7 @@ func findHandler(res http.ResponseWriter, req *http.Request) {
 		t, _ := template.New("foo").Parse(paymentTemplate)
 		t.Execute(res, paymentCollection.Payments[0])
 	case "purchaseorder":
-		purchaseOrderCollection, err := accounting.FindPurchaseOrder(provider, session, id)
+		purchaseOrderCollection, err := accounting.FindPurchaseOrder(context.Background(), provider, session, id)
 		if err != nil {
 			fmt.Fprintln(res, err)
 			return
@@ -353,7 +354,7 @@ func findHandler(res http.ResponseWriter, req *http.Request) {
 		t, _ := template.New("foo").Parse(purchaseOrderTemplate)
 		t.Execute(res, purchaseOrderCollection.PurchaseOrders[0])
 	case "trackingcategory":
-		trackingCategoryCollection, err := accounting.FindTrackingCategory(provider, session, id)
+		trackingCategoryCollection, err := accounting.FindTrackingCategory(context.Background(), provider, session, id)
 		if err != nil {
 			fmt.Fprintln(res, err)
 			return
@@ -363,7 +364,7 @@ func findHandler(res http.ResponseWriter, req *http.Request) {
 		t, _ := template.New("foo").Parse(trackingCategoryTemplate)
 		t.Execute(res, trackingCategoryCollection.TrackingCategories[0])
 	case "overpayment":
-		overpaymentCollection, err := accounting.FindOverpayment(provider, session, id)
+		overpaymentCollection, err := accounting.FindOverpayment(context.Background(), provider, session, id)
 		if err != nil {
 			fmt.Fprintln(res, err)
 			return
@@ -372,7 +373,7 @@ func findHandler(res http.ResponseWriter, req *http.Request) {
 		t, _ := template.New("foo").Parse(overpaymentTemplate)
 		t.Execute(res, overpaymentCollection.Overpayments[0])
 	case "prepayment":
-		prepaymentCollection, err := accounting.FindPrepayment(provider, session, id)
+		prepaymentCollection, err := accounting.FindPrepayment(context.Background(), provider, session, id)
 		if err != nil {
 			fmt.Fprintln(res, err)
 			return
@@ -381,7 +382,7 @@ func findHandler(res http.ResponseWriter, req *http.Request) {
 		t, _ := template.New("foo").Parse(prepaymentTemplate)
 		t.Execute(res, prepaymentCollection.Prepayments[0])
 	case "agedpayablesbycontact":
-		agedPayablesCollection, err := accounting.RunAgedPayablesByContact(provider, session, id, nil)
+		agedPayablesCollection, err := accounting.RunAgedPayablesByContact(context.Background(), provider, session, id, nil)
 		if err != nil {
 			fmt.Fprintln(res, err)
 			return
@@ -390,7 +391,7 @@ func findHandler(res http.ResponseWriter, req *http.Request) {
 		t, _ := template.New("foo").Parse(reportTemplate)
 		t.Execute(res, agedPayablesCollection.Reports[0])
 	case "agedreceivablesbycontact":
-		agedReceivablesCollection, err := accounting.RunAgedReceivablesByContact(provider, session, id, nil)
+		agedReceivablesCollection, err := accounting.RunAgedReceivablesByContact(context.Background(), provider, session, id, nil)
 		if err != nil {
 			fmt.Fprintln(res, err)
 			return
@@ -399,7 +400,7 @@ func findHandler(res http.ResponseWriter, req *http.Request) {
 		t, _ := template.New("foo").Parse(reportTemplate)
 		t.Execute(res, agedReceivablesCollection.Reports[0])
 	case "balancesheet":
-		balanceSheetCollection, err := accounting.RunBalanceSheet(provider, session, nil)
+		balanceSheetCollection, err := accounting.RunBalanceSheet(context.Background(), provider, session, nil)
 		if err != nil {
 			fmt.Fprintln(res, err)
 			return
@@ -408,7 +409,7 @@ func findHandler(res http.ResponseWriter, req *http.Request) {
 		t, _ := template.New("foo").Parse(reportTemplate)
 		t.Execute(res, balanceSheetCollection.Reports[0])
 	case "banksummary":
-		bankSummaryCollection, err := accounting.RunBankSummary(provider, session, nil)
+		bankSummaryCollection, err := accounting.RunBankSummary(context.Background(), provider, session, nil)
 		if err != nil {
 			fmt.Fprintln(res, err)
 			return
@@ -417,7 +418,7 @@ func findHandler(res http.ResponseWriter, req *http.Request) {
 		t, _ := template.New("foo").Parse(reportTemplate)
 		t.Execute(res, bankSummaryCollection.Reports[0])
 	case "budgetsummary":
-		budgetSummaryCollection, err := accounting.RunBudgetSummary(provider, session, nil)
+		budgetSummaryCollection, err := accounting.RunBudgetSummary(context.Background(), provider, session, nil)
 		if err != nil {
 			fmt.Fprintln(res, err)
 			return
@@ -426,7 +427,7 @@ func findHandler(res http.ResponseWriter, req *http.Request) {
 		t, _ := template.New("foo").Parse(reportTemplate)
 		t.Execute(res, budgetSummaryCollection.Reports[0])
 	case "executivesummary":
-		executiveSummaryCollection, err := accounting.RunExecutiveSummary(provider, session, nil)
+		executiveSummaryCollection, err := accounting.RunExecutiveSummary(context.Background(), provider, session, nil)
 		if err != nil {
 			fmt.Fprintln(res, err)
 			return
@@ -435,7 +436,7 @@ func findHandler(res http.ResponseWriter, req *http.Request) {
 		t, _ := template.New("foo").Parse(reportTemplate)
 		t.Execute(res, executiveSummaryCollection.Reports[0])
 	case "profitandloss":
-		profitAndLossCollection, err := accounting.RunProfitAndLoss(provider, session, nil)
+		profitAndLossCollection, err := accounting.RunProfitAndLoss(context.Background(), provider, session, nil)
 		if err != nil {
 			fmt.Fprintln(res, err)
 			return
@@ -444,7 +445,7 @@ func findHandler(res http.ResponseWriter, req *http.Request) {
 		t, _ := template.New("foo").Parse(reportTemplate)
 		t.Execute(res, profitAndLossCollection.Reports[0])
 	case "trialbalance":
-		trialBalanceCollection, err := accounting.RunTrialBalance(provider, session, nil)
+		trialBalanceCollection, err := accounting.RunTrialBalance(context.Background(), provider, session, nil)
 		if err != nil {
 			fmt.Fprintln(res, err)
 			return
@@ -453,7 +454,7 @@ func findHandler(res http.ResponseWriter, req *http.Request) {
 		t, _ := template.New("foo").Parse(reportTemplate)
 		t.Execute(res, trialBalanceCollection.Reports[0])
 	case "linkedtransaction":
-		linkedTransactionCollection, err := accounting.FindLinkedTransaction(provider, session, id)
+		linkedTransactionCollection, err := accounting.FindLinkedTransaction(context.Background(), provider, session, id)
 		if err != nil {
 			fmt.Fprintln(res, err)
 			return
@@ -461,7 +462,7 @@ func findHandler(res http.ResponseWriter, req *http.Request) {
 		t, _ := template.New("foo").Parse(linkedTransactionTemplate)
 		t.Execute(res, linkedTransactionCollection.LinkedTransactions[0])
 	case "user":
-		userCollection, err := accounting.FindUser(provider, session, id)
+		userCollection, err := accounting.FindUser(context.Background(), provider, session, id)
 		if err != nil {
 			fmt.Fprintln(res, err)
 			return
@@ -470,7 +471,7 @@ func findHandler(res http.ResponseWriter, req *http.Request) {
 		t, _ := template.New("foo").Parse(userTemplate)
 		t.Execute(res, userCollection.Users[0])
 	case "expenseclaim":
-		expenseClaimCollection, err := accounting.FindExpenseClaim(provider, session, id)
+		expenseClaimCollection, err := accounting.FindExpenseClaim(context.Background(), provider, session, id)
 		if err != nil {
 			fmt.Fprintln(res, err)
 			return
@@ -479,7 +480,7 @@ func findHandler(res http.ResponseWriter, req *http.Request) {
 		t, _ := template.New("foo").Parse(expenseClaimTemplate)
 		t.Execute(res, expenseClaimCollection.ExpenseClaims[0])
 	case "receipt":
-		receiptCollection, err := accounting.FindReceipt(provider, session, id)
+		receiptCollection, err := accounting.FindReceipt(context.Background(), provider, session, id)
 		if err != nil {
 			fmt.Fprintln(res, err)
 			return
@@ -489,7 +490,7 @@ func findHandler(res http.ResponseWriter, req *http.Request) {
 		t, _ := template.New("foo").Parse(receiptTemplate)
 		t.Execute(res, receiptCollection.Receipts[0])
 	case "repeatinginvoice":
-		repeatingInvoiceCollection, err := accounting.FindRepeatingInvoice(provider, session, id)
+		repeatingInvoiceCollection, err := accounting.FindRepeatingInvoice(context.Background(), provider, session, id)
 		if err != nil {
 			fmt.Fprintln(res, err)
 			return
@@ -498,7 +499,7 @@ func findHandler(res http.ResponseWriter, req *http.Request) {
 		t, _ := template.New("foo").Parse(repeatingInvoiceTemplate)
 		t.Execute(res, repeatingInvoiceCollection.RepeatingInvoices[0])
 	case "banktransfer":
-		bankTransferCollection, err := accounting.FindBankTransfer(provider, session, id)
+		bankTransferCollection, err := accounting.FindBankTransfer(context.Background(), provider, session, id)
 		if err != nil {
 			fmt.Fprintln(res, err)
 			return
@@ -535,14 +536,14 @@ func findAllHandler(res http.ResponseWriter, req *http.Request) {
 		invoiceCollection := new(accounting.Invoices)
 		var err error
 		if modifiedSince == "" {
-			invoiceCollection, err = accounting.FindInvoices(provider, session, nil)
+			invoiceCollection, err = accounting.FindInvoices(context.Background(), provider, session, nil)
 		} else {
 			parsedTime, parseError := time.Parse(time.RFC3339, modifiedSince)
 			if parseError != nil {
 				fmt.Fprintln(res, parseError)
 				return
 			}
-			invoiceCollection, err = accounting.FindInvoicesModifiedSince(provider, session, parsedTime, nil)
+			invoiceCollection, err = accounting.FindInvoicesModifiedSince(context.Background(), provider, session, parsedTime, nil)
 		}
 		if err != nil {
 			fmt.Fprintln(res, err)
@@ -554,14 +555,14 @@ func findAllHandler(res http.ResponseWriter, req *http.Request) {
 		contactCollection := new(accounting.Contacts)
 		var err error
 		if modifiedSince == "" {
-			contactCollection, err = accounting.FindContacts(provider, session, nil)
+			contactCollection, err = accounting.FindContacts(context.Background(), provider, session, nil)
 		} else {
 			parsedTime, parseError := time.Parse(time.RFC3339, modifiedSince)
 			if parseError != nil {
 				fmt.Fprintln(res, parseError)
 				return
 			}
-			contactCollection, err = accounting.FindContactsModifiedSince(provider, session, parsedTime, nil)
+			contactCollection, err = accounting.FindContactsModifiedSince(context.Background(), provider, session, parsedTime, nil)
 		}
 		if err != nil {
 			fmt.Fprintln(res, err)
@@ -573,14 +574,14 @@ func findAllHandler(res http.ResponseWriter, req *http.Request) {
 		accountCollection := new(accounting.Accounts)
 		var err error
 		if modifiedSince == "" {
-			accountCollection, err = accounting.FindAccounts(provider, session, nil)
+			accountCollection, err = accounting.FindAccounts(context.Background(), provider, session, nil)
 		} else {
 			parsedTime, parseError := time.Parse(time.RFC3339, modifiedSince)
 			if parseError != nil {
 				fmt.Fprintln(res, parseError)
 				return
 			}
-			accountCollection, err = accounting.FindAccountsModifiedSince(provider, session, parsedTime, nil)
+			accountCollection, err = accounting.FindAccountsModifiedSince(context.Background(), provider, session, parsedTime, nil)
 		}
 		if err != nil {
 			fmt.Fprintln(res, err)
@@ -592,14 +593,14 @@ func findAllHandler(res http.ResponseWriter, req *http.Request) {
 		bankTransactionCollection := new(accounting.BankTransactions)
 		var err error
 		if modifiedSince == "" {
-			bankTransactionCollection, err = accounting.FindBankTransactions(provider, session, nil)
+			bankTransactionCollection, err = accounting.FindBankTransactions(context.Background(), provider, session, nil)
 		} else {
 			parsedTime, parseError := time.Parse(time.RFC3339, modifiedSince)
 			if parseError != nil {
 				fmt.Fprintln(res, parseError)
 				return
 			}
-			bankTransactionCollection, err = accounting.FindBankTransactionsModifiedSince(provider, session, parsedTime, nil)
+			bankTransactionCollection, err = accounting.FindBankTransactionsModifiedSince(context.Background(), provider, session, parsedTime, nil)
 		}
 		if err != nil {
 			fmt.Fprintln(res, err)
@@ -611,14 +612,14 @@ func findAllHandler(res http.ResponseWriter, req *http.Request) {
 		creditNoteCollection := new(accounting.CreditNotes)
 		var err error
 		if modifiedSince == "" {
-			creditNoteCollection, err = accounting.FindCreditNotes(provider, session, nil)
+			creditNoteCollection, err = accounting.FindCreditNotes(context.Background(), provider, session, nil)
 		} else {
 			parsedTime, parseError := time.Parse(time.RFC3339, modifiedSince)
 			if parseError != nil {
 				fmt.Fprintln(res, parseError)
 				return
 			}
-			creditNoteCollection, err = accounting.FindCreditNotesModifiedSince(provider, session, parsedTime, nil)
+			creditNoteCollection, err = accounting.FindCreditNotesModifiedSince(context.Background(), provider, session, parsedTime, nil)
 		}
 		if err != nil {
 			fmt.Fprintln(res, err)
@@ -627,7 +628,7 @@ func findAllHandler(res http.ResponseWriter, req *http.Request) {
 		t, _ := template.New("foo").Parse(creditNotesTemplate)
 		t.Execute(res, creditNoteCollection.CreditNotes)
 	case "contactgroups":
-		contactGroupCollection, err := accounting.FindContactGroups(provider, session)
+		contactGroupCollection, err := accounting.FindContactGroups(context.Background(), provider, session)
 		if err != nil {
 			fmt.Fprintln(res, err)
 			return
@@ -635,7 +636,7 @@ func findAllHandler(res http.ResponseWriter, req *http.Request) {
 		t, _ := template.New("foo").Parse(contactGroupsTemplate)
 		t.Execute(res, contactGroupCollection.ContactGroups)
 	case "currencies":
-		currencyCollection, err := accounting.FindCurrencies(provider, session)
+		currencyCollection, err := accounting.FindCurrencies(context.Background(), provider, session)
 		if err != nil {
 			fmt.Fprintln(res, err)
 			return
@@ -646,14 +647,14 @@ func findAllHandler(res http.ResponseWriter, req *http.Request) {
 		itemCollection := new(accounting.Items)
 		var err error
 		if modifiedSince == "" {
-			itemCollection, err = accounting.FindItems(provider, session, nil)
+			itemCollection, err = accounting.FindItems(context.Background(), provider, session, nil)
 		} else {
 			parsedTime, parseError := time.Parse(time.RFC3339, modifiedSince)
 			if parseError != nil {
 				fmt.Fprintln(res, parseError)
 				return
 			}
-			itemCollection, err = accounting.FindItemsModifiedSince(provider, session, parsedTime, nil)
+			itemCollection, err = accounting.FindItemsModifiedSince(context.Background(), provider, session, parsedTime, nil)
 		}
 		if err != nil {
 			fmt.Fprintln(res, err)
@@ -668,14 +669,14 @@ func findAllHandler(res http.ResponseWriter, req *http.Request) {
 			"offset": "0",
 		}
 		if modifiedSince == "" {
-			journalCollection, err = accounting.FindJournals(provider, session, querystringParameters)
+			journalCollection, err = accounting.FindJournals(context.Background(), provider, session, querystringParameters)
 		} else {
 			parsedTime, parseError := time.Parse(time.RFC3339, modifiedSince)
 			if parseError != nil {
 				fmt.Fprintln(res, parseError)
 				return
 			}
-			journalCollection, err = accounting.FindJournalsModifiedSince(provider, session, parsedTime, querystringParameters)
+			journalCollection, err = accounting.FindJournalsModifiedSince(context.Background(), provider, session, parsedTime, querystringParameters)
 		}
 		if err != nil {
 			fmt.Fprintln(res, err)
@@ -687,14 +688,14 @@ func findAllHandler(res http.ResponseWriter, req *http.Request) {
 		manualJournalCollection := new(accounting.ManualJournals)
 		var err error
 		if modifiedSince == "" {
-			manualJournalCollection, err = accounting.FindManualJournals(provider, session, nil)
+			manualJournalCollection, err = accounting.FindManualJournals(context.Background(), provider, session, nil)
 		} else {
 			parsedTime, parseError := time.Parse(time.RFC3339, modifiedSince)
 			if parseError != nil {
 				fmt.Fprintln(res, parseError)
 				return
 			}
-			manualJournalCollection, err = accounting.FindManualJournalsModifiedSince(provider, session, parsedTime, nil)
+			manualJournalCollection, err = accounting.FindManualJournalsModifiedSince(context.Background(), provider, session, parsedTime, nil)
 		}
 		if err != nil {
 			fmt.Fprintln(res, err)
@@ -706,14 +707,14 @@ func findAllHandler(res http.ResponseWriter, req *http.Request) {
 		paymentCollection := new(accounting.Payments)
 		var err error
 		if modifiedSince == "" {
-			paymentCollection, err = accounting.FindPayments(provider, session, nil)
+			paymentCollection, err = accounting.FindPayments(context.Background(), provider, session, nil)
 		} else {
 			parsedTime, parseError := time.Parse(time.RFC3339, modifiedSince)
 			if parseError != nil {
 				fmt.Fprintln(res, parseError)
 				return
 			}
-			paymentCollection, err = accounting.FindPaymentsModifiedSince(provider, session, parsedTime, nil)
+			paymentCollection, err = accounting.FindPaymentsModifiedSince(context.Background(), provider, session, parsedTime, nil)
 		}
 		if err != nil {
 			fmt.Fprintln(res, err)
@@ -725,14 +726,14 @@ func findAllHandler(res http.ResponseWriter, req *http.Request) {
 		purchaseOrderCollection := new(accounting.PurchaseOrders)
 		var err error
 		if modifiedSince == "" {
-			purchaseOrderCollection, err = accounting.FindPurchaseOrders(provider, session, nil)
+			purchaseOrderCollection, err = accounting.FindPurchaseOrders(context.Background(), provider, session, nil)
 		} else {
 			parsedTime, parseError := time.Parse(time.RFC3339, modifiedSince)
 			if parseError != nil {
 				fmt.Fprintln(res, parseError)
 				return
 			}
-			purchaseOrderCollection, err = accounting.FindPurchaseOrdersModifiedSince(provider, session, parsedTime, nil)
+			purchaseOrderCollection, err = accounting.FindPurchaseOrdersModifiedSince(context.Background(), provider, session, parsedTime, nil)
 		}
 		if err != nil {
 			fmt.Fprintln(res, err)
@@ -741,7 +742,7 @@ func findAllHandler(res http.ResponseWriter, req *http.Request) {
 		t, _ := template.New("foo").Parse(purchaseOrdersTemplate)
 		t.Execute(res, purchaseOrderCollection.PurchaseOrders)
 	case "trackingcategories":
-		trackingCategoryCollection, err := accounting.FindTrackingCategories(provider, session)
+		trackingCategoryCollection, err := accounting.FindTrackingCategories(context.Background(), provider, session)
 		if err != nil {
 			fmt.Fprintln(res, err)
 			return
@@ -749,7 +750,7 @@ func findAllHandler(res http.ResponseWriter, req *http.Request) {
 		t, _ := template.New("foo").Parse(trackingCategoriesTemplate)
 		t.Execute(res, trackingCategoryCollection.TrackingCategories)
 	case "taxrates":
-		taxRateCollection, err := accounting.FindTaxRates(provider, session, nil)
+		taxRateCollection, err := accounting.FindTaxRates(context.Background(), provider, session, nil)
 		if err != nil {
 			fmt.Fprintln(res, err)
 			return
@@ -760,14 +761,14 @@ func findAllHandler(res http.ResponseWriter, req *http.Request) {
 		overpaymentCollection := new(accounting.Overpayments)
 		var err error
 		if modifiedSince == "" {
-			overpaymentCollection, err = accounting.FindOverpayments(provider, session, nil)
+			overpaymentCollection, err = accounting.FindOverpayments(context.Background(), provider, session, nil)
 		} else {
 			parsedTime, parseError := time.Parse(time.RFC3339, modifiedSince)
 			if parseError != nil {
 				fmt.Fprintln(res, parseError)
 				return
 			}
-			overpaymentCollection, err = accounting.FindOverpaymentsModifiedSince(provider, session, parsedTime, nil)
+			overpaymentCollection, err = accounting.FindOverpaymentsModifiedSince(context.Background(), provider, session, parsedTime, nil)
 		}
 		if err != nil {
 			fmt.Fprintln(res, err)
@@ -779,14 +780,14 @@ func findAllHandler(res http.ResponseWriter, req *http.Request) {
 		prepaymentCollection := new(accounting.Prepayments)
 		var err error
 		if modifiedSince == "" {
-			prepaymentCollection, err = accounting.FindPrepayments(provider, session, nil)
+			prepaymentCollection, err = accounting.FindPrepayments(context.Background(), provider, session, nil)
 		} else {
 			parsedTime, parseError := time.Parse(time.RFC3339, modifiedSince)
 			if parseError != nil {
 				fmt.Fprintln(res, parseError)
 				return
 			}
-			prepaymentCollection, err = accounting.FindPrepaymentsModifiedSince(provider, session, parsedTime, nil)
+			prepaymentCollection, err = accounting.FindPrepaymentsModifiedSince(context.Background(), provider, session, parsedTime, nil)
 		}
 		if err != nil {
 			fmt.Fprintln(res, err)
@@ -798,14 +799,14 @@ func findAllHandler(res http.ResponseWriter, req *http.Request) {
 		linkedTransactionCollection := new(accounting.LinkedTransactions)
 		var err error
 		if modifiedSince == "" {
-			linkedTransactionCollection, err = accounting.FindLinkedTransactions(provider, session, nil)
+			linkedTransactionCollection, err = accounting.FindLinkedTransactions(context.Background(), provider, session, nil)
 		} else {
 			parsedTime, parseError := time.Parse(time.RFC3339, modifiedSince)
 			if parseError != nil {
 				fmt.Fprintln(res, parseError)
 				return
 			}
-			linkedTransactionCollection, err = accounting.FindLinkedTransactionsModifiedSince(provider, session, parsedTime, nil)
+			linkedTransactionCollection, err = accounting.FindLinkedTransactionsModifiedSince(context.Background(), provider, session, parsedTime, nil)
 		}
 		if err != nil {
 			fmt.Fprintln(res, err)
@@ -817,14 +818,14 @@ func findAllHandler(res http.ResponseWriter, req *http.Request) {
 		userCollection := new(accounting.Users)
 		var err error
 		if modifiedSince == "" {
-			userCollection, err = accounting.FindUsers(provider, session, nil)
+			userCollection, err = accounting.FindUsers(context.Background(), provider, session, nil)
 		} else {
 			parsedTime, parseError := time.Parse(time.RFC3339, modifiedSince)
 			if parseError != nil {
 				fmt.Fprintln(res, parseError)
 				return
 			}
-			userCollection, err = accounting.FindUsersModifiedSince(provider, session, parsedTime, nil)
+			userCollection, err = accounting.FindUsersModifiedSince(context.Background(), provider, session, parsedTime, nil)
 		}
 		if err != nil {
 			fmt.Fprintln(res, err)
@@ -836,14 +837,14 @@ func findAllHandler(res http.ResponseWriter, req *http.Request) {
 		expenseClaimCollection := new(accounting.ExpenseClaims)
 		var err error
 		if modifiedSince == "" {
-			expenseClaimCollection, err = accounting.FindExpenseClaims(provider, session, nil)
+			expenseClaimCollection, err = accounting.FindExpenseClaims(context.Background(), provider, session, nil)
 		} else {
 			parsedTime, parseError := time.Parse(time.RFC3339, modifiedSince)
 			if parseError != nil {
 				fmt.Fprintln(res, parseError)
 				return
 			}
-			expenseClaimCollection, err = accounting.FindExpenseClaimsModifiedSince(provider, session, parsedTime, nil)
+			expenseClaimCollection, err = accounting.FindExpenseClaimsModifiedSince(context.Background(), provider, session, parsedTime, nil)
 		}
 		if err != nil {
 			fmt.Fprintln(res, err)
@@ -855,14 +856,14 @@ func findAllHandler(res http.ResponseWriter, req *http.Request) {
 		receiptCollection := new(accounting.Receipts)
 		var err error
 		if modifiedSince == "" {
-			receiptCollection, err = accounting.FindReceipts(provider, session, nil)
+			receiptCollection, err = accounting.FindReceipts(context.Background(), provider, session, nil)
 		} else {
 			parsedTime, parseError := time.Parse(time.RFC3339, modifiedSince)
 			if parseError != nil {
 				fmt.Fprintln(res, parseError)
 				return
 			}
-			receiptCollection, err = accounting.FindReceiptsModifiedSince(provider, session, parsedTime, nil)
+			receiptCollection, err = accounting.FindReceiptsModifiedSince(context.Background(), provider, session, parsedTime, nil)
 		}
 		if err != nil {
 			fmt.Fprintln(res, err)
@@ -871,7 +872,7 @@ func findAllHandler(res http.ResponseWriter, req *http.Request) {
 		t, _ := template.New("foo").Parse(receiptsTemplate)
 		t.Execute(res, receiptCollection.Receipts)
 	case "repeatinginvoices":
-		repeatingInvoiceCollection, err := accounting.FindRepeatingInvoices(provider, session, nil)
+		repeatingInvoiceCollection, err := accounting.FindRepeatingInvoices(context.Background(), provider, session, nil)
 		if err != nil {
 			fmt.Fprintln(res, err)
 			return
@@ -882,14 +883,14 @@ func findAllHandler(res http.ResponseWriter, req *http.Request) {
 		bankTransferCollection := new(accounting.BankTransfers)
 		var err error
 		if modifiedSince == "" {
-			bankTransferCollection, err = accounting.FindBankTransfers(provider, session, nil)
+			bankTransferCollection, err = accounting.FindBankTransfers(context.Background(), provider, session, nil)
 		} else {
 			parsedTime, parseError := time.Parse(time.RFC3339, modifiedSince)
 			if parseError != nil {
 				fmt.Fprintln(res, parseError)
 				return
 			}
-			bankTransferCollection, err = accounting.FindBankTransfersModifiedSince(provider, session, parsedTime, nil)
+			bankTransferCollection, err = accounting.FindBankTransfersModifiedSince(context.Background(), provider, session, parsedTime, nil)
 		}
 		if err != nil {
 			fmt.Fprintln(res, err)
@@ -898,7 +899,7 @@ func findAllHandler(res http.ResponseWriter, req *http.Request) {
 		t, _ := template.New("foo").Parse(bankTransfersTemplate)
 		t.Execute(res, bankTransferCollection.BankTransfers)
 	case "brandingthemes":
-		currencyCollection, err := accounting.FindBrandingThemes(provider, session)
+		currencyCollection, err := accounting.FindBrandingThemes(context.Background(), provider, session)
 		if err != nil {
 			fmt.Fprintln(res, err)
 			return
@@ -906,7 +907,7 @@ func findAllHandler(res http.ResponseWriter, req *http.Request) {
 		t, _ := template.New("foo").Parse(brandingThemesTemplate)
 		t.Execute(res, currencyCollection.BrandingThemes)
 	case "organisation":
-		organisationCollection, err := accounting.FindOrganisation(provider, session)
+		organisationCollection, err := accounting.FindOrganisation(context.Background(), provider, session)
 		if err != nil {
 			fmt.Fprintln(res, err)
 			return
@@ -946,14 +947,14 @@ func findAllPagedHandler(res http.ResponseWriter, req *http.Request) {
 		invoiceCollection := new(accounting.Invoices)
 		var err error
 		if modifiedSince == "" {
-			invoiceCollection, err = accounting.FindInvoices(provider, session, querystringParameters)
+			invoiceCollection, err = accounting.FindInvoices(context.Background(), provider, session, querystringParameters)
 		} else {
 			parsedTime, parseError := time.Parse(time.RFC3339, modifiedSince)
 			if parseError != nil {
 				fmt.Fprintln(res, parseError)
 				return
 			}
-			invoiceCollection, err = accounting.FindInvoicesModifiedSince(provider, session, parsedTime, querystringParameters)
+			invoiceCollection, err = accounting.FindInvoicesModifiedSince(context.Background(), provider, session, parsedTime, querystringParameters)
 		}
 		if err != nil {
 			fmt.Fprintln(res, err)
@@ -965,14 +966,14 @@ func findAllPagedHandler(res http.ResponseWriter, req *http.Request) {
 		contactCollection := new(accounting.Contacts)
 		var err error
 		if modifiedSince == "" {
-			contactCollection, err = accounting.FindContacts(provider, session, querystringParameters)
+			contactCollection, err = accounting.FindContacts(context.Background(), provider, session, querystringParameters)
 		} else {
 			parsedTime, parseError := time.Parse(time.RFC3339, modifiedSince)
 			if parseError != nil {
 				fmt.Fprintln(res, err)
 				return
 			}
-			contactCollection, err = accounting.FindContactsModifiedSince(provider, session, parsedTime, querystringParameters)
+			contactCollection, err = accounting.FindContactsModifiedSince(context.Background(), provider, session, parsedTime, querystringParameters)
 		}
 		if err != nil {
 			fmt.Fprintln(res, err)
@@ -984,14 +985,14 @@ func findAllPagedHandler(res http.ResponseWriter, req *http.Request) {
 		bankTransactionCollection := new(accounting.BankTransactions)
 		var err error
 		if modifiedSince == "" {
-			bankTransactionCollection, err = accounting.FindBankTransactions(provider, session, querystringParameters)
+			bankTransactionCollection, err = accounting.FindBankTransactions(context.Background(), provider, session, querystringParameters)
 		} else {
 			parsedTime, parseError := time.Parse(time.RFC3339, modifiedSince)
 			if parseError != nil {
 				fmt.Fprintln(res, parseError)
 				return
 			}
-			bankTransactionCollection, err = accounting.FindBankTransactionsModifiedSince(provider, session, parsedTime, querystringParameters)
+			bankTransactionCollection, err = accounting.FindBankTransactionsModifiedSince(context.Background(), provider, session, parsedTime, querystringParameters)
 		}
 		if err != nil {
 			fmt.Fprintln(res, err)
@@ -1003,14 +1004,14 @@ func findAllPagedHandler(res http.ResponseWriter, req *http.Request) {
 		creditNoteCollection := new(accounting.CreditNotes)
 		var err error
 		if modifiedSince == "" {
-			creditNoteCollection, err = accounting.FindCreditNotes(provider, session, querystringParameters)
+			creditNoteCollection, err = accounting.FindCreditNotes(context.Background(), provider, session, querystringParameters)
 		} else {
 			parsedTime, parseError := time.Parse(time.RFC3339, modifiedSince)
 			if parseError != nil {
 				fmt.Fprintln(res, parseError)
 				return
 			}
-			creditNoteCollection, err = accounting.FindCreditNotesModifiedSince(provider, session, parsedTime, querystringParameters)
+			creditNoteCollection, err = accounting.FindCreditNotesModifiedSince(context.Background(), provider, session, parsedTime, querystringParameters)
 		}
 		if err != nil {
 			fmt.Fprintln(res, err)
@@ -1025,14 +1026,14 @@ func findAllPagedHandler(res http.ResponseWriter, req *http.Request) {
 		journalCollection := new(accounting.Journals)
 		var err error
 		if modifiedSince == "" {
-			journalCollection, err = accounting.FindJournals(provider, session, journalParameters)
+			journalCollection, err = accounting.FindJournals(context.Background(), provider, session, journalParameters)
 		} else {
 			parsedTime, parseError := time.Parse(time.RFC3339, modifiedSince)
 			if parseError != nil {
 				fmt.Fprintln(res, err)
 				return
 			}
-			journalCollection, err = accounting.FindJournalsModifiedSince(provider, session, parsedTime, journalParameters)
+			journalCollection, err = accounting.FindJournalsModifiedSince(context.Background(), provider, session, parsedTime, journalParameters)
 		}
 		if err != nil {
 			fmt.Fprintln(res, err)
@@ -1044,14 +1045,14 @@ func findAllPagedHandler(res http.ResponseWriter, req *http.Request) {
 		manualJournalCollection := new(accounting.ManualJournals)
 		var err error
 		if modifiedSince == "" {
-			manualJournalCollection, err = accounting.FindManualJournals(provider, session, querystringParameters)
+			manualJournalCollection, err = accounting.FindManualJournals(context.Background(), provider, session, querystringParameters)
 		} else {
 			parsedTime, parseError := time.Parse(time.RFC3339, modifiedSince)
 			if parseError != nil {
 				fmt.Fprintln(res, parseError)
 				return
 			}
-			manualJournalCollection, err = accounting.FindManualJournalsModifiedSince(provider, session, parsedTime, querystringParameters)
+			manualJournalCollection, err = accounting.FindManualJournalsModifiedSince(context.Background(), provider, session, parsedTime, querystringParameters)
 		}
 		if err != nil {
 			fmt.Fprintln(res, err)
@@ -1063,14 +1064,14 @@ func findAllPagedHandler(res http.ResponseWriter, req *http.Request) {
 		purchaseOrderCollection := new(accounting.PurchaseOrders)
 		var err error
 		if modifiedSince == "" {
-			purchaseOrderCollection, err = accounting.FindPurchaseOrders(provider, session, querystringParameters)
+			purchaseOrderCollection, err = accounting.FindPurchaseOrders(context.Background(), provider, session, querystringParameters)
 		} else {
 			parsedTime, parseError := time.Parse(time.RFC3339, modifiedSince)
 			if parseError != nil {
 				fmt.Fprintln(res, parseError)
 				return
 			}
-			purchaseOrderCollection, err = accounting.FindPurchaseOrdersModifiedSince(provider, session, parsedTime, querystringParameters)
+			purchaseOrderCollection, err = accounting.FindPurchaseOrdersModifiedSince(context.Background(), provider, session, parsedTime, querystringParameters)
 		}
 		if err != nil {
 			fmt.Fprintln(res, err)
@@ -1082,14 +1083,14 @@ func findAllPagedHandler(res http.ResponseWriter, req *http.Request) {
 		overpaymentCollection := new(accounting.Overpayments)
 		var err error
 		if modifiedSince == "" {
-			overpaymentCollection, err = accounting.FindOverpayments(provider, session, querystringParameters)
+			overpaymentCollection, err = accounting.FindOverpayments(context.Background(), provider, session, querystringParameters)
 		} else {
 			parsedTime, parseError := time.Parse(time.RFC3339, modifiedSince)
 			if parseError != nil {
 				fmt.Fprintln(res, parseError)
 				return
 			}
-			overpaymentCollection, err = accounting.FindOverpaymentsModifiedSince(provider, session, parsedTime, querystringParameters)
+			overpaymentCollection, err = accounting.FindOverpaymentsModifiedSince(context.Background(), provider, session, parsedTime, querystringParameters)
 		}
 		if err != nil {
 			fmt.Fprintln(res, err)
@@ -1101,14 +1102,14 @@ func findAllPagedHandler(res http.ResponseWriter, req *http.Request) {
 		prepaymentCollection := new(accounting.Prepayments)
 		var err error
 		if modifiedSince == "" {
-			prepaymentCollection, err = accounting.FindPrepayments(provider, session, querystringParameters)
+			prepaymentCollection, err = accounting.FindPrepayments(context.Background(), provider, session, querystringParameters)
 		} else {
 			parsedTime, parseError := time.Parse(time.RFC3339, modifiedSince)
 			if parseError != nil {
 				fmt.Fprintln(res, parseError)
 				return
 			}
-			prepaymentCollection, err = accounting.FindPrepaymentsModifiedSince(provider, session, parsedTime, querystringParameters)
+			prepaymentCollection, err = accounting.FindPrepaymentsModifiedSince(context.Background(), provider, session, parsedTime, querystringParameters)
 		}
 		if err != nil {
 			fmt.Fprintln(res, err)
@@ -1120,14 +1121,14 @@ func findAllPagedHandler(res http.ResponseWriter, req *http.Request) {
 		linkedTransactionCollection := new(accounting.LinkedTransactions)
 		var err error
 		if modifiedSince == "" {
-			linkedTransactionCollection, err = accounting.FindLinkedTransactions(provider, session, querystringParameters)
+			linkedTransactionCollection, err = accounting.FindLinkedTransactions(context.Background(), provider, session, querystringParameters)
 		} else {
 			parsedTime, parseError := time.Parse(time.RFC3339, modifiedSince)
 			if parseError != nil {
 				fmt.Fprintln(res, parseError)
 				return
 			}
-			linkedTransactionCollection, err = accounting.FindLinkedTransactionsModifiedSince(provider, session, parsedTime, querystringParameters)
+			linkedTransactionCollection, err = accounting.FindLinkedTransactionsModifiedSince(context.Background(), provider, session, parsedTime, querystringParameters)
 		}
 		if err != nil {
 			fmt.Fprintln(res, err)
@@ -1163,7 +1164,7 @@ func findWhereHandler(res http.ResponseWriter, req *http.Request) {
 	}
 	switch object {
 	case "invoices":
-		invoiceCollection, err := accounting.FindInvoices(provider, session, querystringParameters)
+		invoiceCollection, err := accounting.FindInvoices(context.Background(), provider, session, querystringParameters)
 		if err != nil {
 			fmt.Fprintln(res, err)
 			return
@@ -1171,7 +1172,7 @@ func findWhereHandler(res http.ResponseWriter, req *http.Request) {
 		t, _ := template.New("foo").Parse(invoicesTemplate)
 		t.Execute(res, invoiceCollection.Invoices)
 	case "contacts":
-		contactCollection, err := accounting.FindContacts(provider, session, querystringParameters)
+		contactCollection, err := accounting.FindContacts(context.Background(), provider, session, querystringParameters)
 		if err != nil {
 			fmt.Fprintln(res, err)
 			return
@@ -1179,7 +1180,7 @@ func findWhereHandler(res http.ResponseWriter, req *http.Request) {
 		t, _ := template.New("foo").Parse(contactsTemplate)
 		t.Execute(res, contactCollection.Contacts)
 	case "banktransactions":
-		bankTransactionCollection, err := accounting.FindBankTransactions(provider, session, querystringParameters)
+		bankTransactionCollection, err := accounting.FindBankTransactions(context.Background(), provider, session, querystringParameters)
 		if err != nil {
 			fmt.Fprintln(res, err)
 			return
@@ -1187,7 +1188,7 @@ func findWhereHandler(res http.ResponseWriter, req *http.Request) {
 		t, _ := template.New("foo").Parse(bankTransactionsTemplate)
 		t.Execute(res, bankTransactionCollection.BankTransactions)
 	case "creditnotes":
-		creditNoteCollection, err := accounting.FindCreditNotes(provider, session, querystringParameters)
+		creditNoteCollection, err := accounting.FindCreditNotes(context.Background(), provider, session, querystringParameters)
 		if err != nil {
 			fmt.Fprintln(res, err)
 			return
@@ -1195,7 +1196,7 @@ func findWhereHandler(res http.ResponseWriter, req *http.Request) {
 		t, _ := template.New("foo").Parse(creditNotesTemplate)
 		t.Execute(res, creditNoteCollection.CreditNotes)
 	case "items":
-		itemCollection, err := accounting.FindItems(provider, session, querystringParameters)
+		itemCollection, err := accounting.FindItems(context.Background(), provider, session, querystringParameters)
 		if err != nil {
 			fmt.Fprintln(res, err)
 			return
@@ -1203,7 +1204,7 @@ func findWhereHandler(res http.ResponseWriter, req *http.Request) {
 		t, _ := template.New("foo").Parse(itemsTemplate)
 		t.Execute(res, itemCollection.Items)
 	case "manualjournals":
-		manualJournalCollection, err := accounting.FindManualJournals(provider, session, querystringParameters)
+		manualJournalCollection, err := accounting.FindManualJournals(context.Background(), provider, session, querystringParameters)
 		if err != nil {
 			fmt.Fprintln(res, err)
 			return
@@ -1211,7 +1212,7 @@ func findWhereHandler(res http.ResponseWriter, req *http.Request) {
 		t, _ := template.New("foo").Parse(manualJournalsTemplate)
 		t.Execute(res, manualJournalCollection.ManualJournals)
 	case "payments":
-		paymentCollection, err := accounting.FindPayments(provider, session, querystringParameters)
+		paymentCollection, err := accounting.FindPayments(context.Background(), provider, session, querystringParameters)
 		if err != nil {
 			fmt.Fprintln(res, err)
 			return
@@ -1219,7 +1220,7 @@ func findWhereHandler(res http.ResponseWriter, req *http.Request) {
 		t, _ := template.New("foo").Parse(paymentsTemplate)
 		t.Execute(res, paymentCollection.Payments)
 	case "overpayments":
-		overpaymentCollection, err := accounting.FindOverpayments(provider, session, querystringParameters)
+		overpaymentCollection, err := accounting.FindOverpayments(context.Background(), provider, session, querystringParameters)
 		if err != nil {
 			fmt.Fprintln(res, err)
 			return
@@ -1227,7 +1228,7 @@ func findWhereHandler(res http.ResponseWriter, req *http.Request) {
 		t, _ := template.New("foo").Parse(overpaymentsTemplate)
 		t.Execute(res, overpaymentCollection.Overpayments)
 	case "prepayments":
-		prepaymentCollection, err := accounting.FindPrepayments(provider, session, querystringParameters)
+		prepaymentCollection, err := accounting.FindPrepayments(context.Background(), provider, session, querystringParameters)
 		if err != nil {
 			fmt.Fprintln(res, err)
 			return
@@ -1235,7 +1236,7 @@ func findWhereHandler(res http.ResponseWriter, req *http.Request) {
 		t, _ := template.New("foo").Parse(prepaymentsTemplate)
 		t.Execute(res, prepaymentCollection.Prepayments)
 	case "users":
-		userCollection, err := accounting.FindUsers(provider, session, querystringParameters)
+		userCollection, err := accounting.FindUsers(context.Background(), provider, session, querystringParameters)
 		if err != nil {
 			fmt.Fprintln(res, err)
 			return
@@ -1276,7 +1277,7 @@ func findHistoryHandler(res http.ResponseWriter, req *http.Request) {
 		fmt.Fprintln(res, "History not available on this entity")
 		return
 	}
-	historyCollection, err := accounting.FindHistoryAndNotes(provider, session, object, id)
+	historyCollection, err := accounting.FindHistoryAndNotes(context.Background(), provider, session, object, id)
 	if err != nil {
 		fmt.Fprintln(res, err)
 		return
@@ -1309,7 +1310,7 @@ func updateHandler(res http.ResponseWriter, req *http.Request) {
 			invoices.Invoices[0].Status = "DRAFT"
 		}
 
-		invoiceCollection, err := invoices.Update(provider, session)
+		invoiceCollection, err := invoices.Update(context.Background(), provider, session)
 		if err != nil {
 			fmt.Fprintln(res, err)
 			return
@@ -1327,7 +1328,7 @@ func updateHandler(res http.ResponseWriter, req *http.Request) {
 			contacts.Contacts[0].EmailAddress = "it@shrinks.com"
 		}
 
-		contactCollection, err := contacts.Update(provider, session)
+		contactCollection, err := contacts.Update(context.Background(), provider, session)
 		if err != nil {
 			fmt.Fprintln(res, err)
 			return
@@ -1347,7 +1348,7 @@ func updateHandler(res http.ResponseWriter, req *http.Request) {
 			accounts.Accounts[0].EnablePaymentsToAccount = false
 		}
 
-		accountCollection, err := accounts.Update(provider, session)
+		accountCollection, err := accounts.Update(context.Background(), provider, session)
 		if err != nil {
 			fmt.Fprintln(res, err)
 			return
@@ -1363,7 +1364,7 @@ func updateHandler(res http.ResponseWriter, req *http.Request) {
 			bankTransactions.BankTransactions[0].Status = "DELETED"
 		}
 
-		bankTransactionCollection, err := bankTransactions.Update(provider, session)
+		bankTransactionCollection, err := bankTransactions.Update(context.Background(), provider, session)
 		if err != nil {
 			fmt.Fprintln(res, err)
 			return
@@ -1381,7 +1382,7 @@ func updateHandler(res http.ResponseWriter, req *http.Request) {
 			creditNotes.CreditNotes[0].Status = "DRAFT"
 		}
 
-		creditNoteCollection, err := creditNotes.Update(provider, session)
+		creditNoteCollection, err := creditNotes.Update(context.Background(), provider, session)
 		if err != nil {
 			fmt.Fprintln(res, err)
 			return
@@ -1397,7 +1398,7 @@ func updateHandler(res http.ResponseWriter, req *http.Request) {
 			contactGroups.ContactGroups[0].Status = "DELETED"
 		}
 
-		contactGroupCollection, err := contactGroups.Update(provider, session)
+		contactGroupCollection, err := contactGroups.Update(context.Background(), provider, session)
 		if err != nil {
 			fmt.Fprintln(res, err)
 			return
@@ -1415,7 +1416,7 @@ func updateHandler(res http.ResponseWriter, req *http.Request) {
 			items.Items[0].Description = "A Beltless Trenchcoat"
 		}
 
-		itemCollection, err := items.Update(provider, session)
+		itemCollection, err := items.Update(context.Background(), provider, session)
 		if err != nil {
 			fmt.Fprintln(res, err)
 			return
@@ -1433,7 +1434,7 @@ func updateHandler(res http.ResponseWriter, req *http.Request) {
 			manualJournals.ManualJournals[0].Status = "DRAFT"
 		}
 
-		manualJournalCollection, err := manualJournals.Update(provider, session)
+		manualJournalCollection, err := manualJournals.Update(context.Background(), provider, session)
 		if err != nil {
 			fmt.Fprintln(res, err)
 			return
@@ -1449,7 +1450,7 @@ func updateHandler(res http.ResponseWriter, req *http.Request) {
 			payments.Payments[0].Status = "DELETED"
 		}
 
-		paymentCollection, err := payments.Update(provider, session)
+		paymentCollection, err := payments.Update(context.Background(), provider, session)
 		if err != nil {
 			fmt.Fprintln(res, err)
 			return
@@ -1467,7 +1468,7 @@ func updateHandler(res http.ResponseWriter, req *http.Request) {
 			purchaseOrders.PurchaseOrders[0].Status = "DRAFT"
 		}
 
-		purchaseOrderCollection, err := purchaseOrders.Update(provider, session)
+		purchaseOrderCollection, err := purchaseOrders.Update(context.Background(), provider, session)
 		if err != nil {
 			fmt.Fprintln(res, err)
 			return
@@ -1485,7 +1486,7 @@ func updateHandler(res http.ResponseWriter, req *http.Request) {
 			trackingCategories.TrackingCategories[0].Name = "Person Responsible"
 		}
 
-		trackingCategoryCollection, err := trackingCategories.Update(provider, session)
+		trackingCategoryCollection, err := trackingCategories.Update(context.Background(), provider, session)
 		if err != nil {
 			fmt.Fprintln(res, err)
 			return
@@ -1501,7 +1502,7 @@ func updateHandler(res http.ResponseWriter, req *http.Request) {
 			taxRates.TaxRates[0].Status = "DELETED"
 		}
 
-		taxRateCollection, err := taxRates.Update(provider, session)
+		taxRateCollection, err := taxRates.Update(context.Background(), provider, session)
 		if err != nil {
 			fmt.Fprintln(res, err)
 			return
@@ -1519,7 +1520,7 @@ func updateHandler(res http.ResponseWriter, req *http.Request) {
 			receipts.Receipts[0].Reference = "1111"
 		}
 
-		receiptCollection, err := receipts.Update(provider, session)
+		receiptCollection, err := receipts.Update(context.Background(), provider, session)
 		if err != nil {
 			fmt.Fprintln(res, err)
 			return

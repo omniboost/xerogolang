@@ -1,6 +1,7 @@
 package accounting
 
 import (
+	"context"
 	"encoding/json"
 	"encoding/xml"
 	"time"
@@ -122,7 +123,7 @@ func unmarshalPurchaseOrder(purchaseOrderResponseBytes []byte) (*PurchaseOrders,
 }
 
 // Create will create purchaseOrders given an PurchaseOrders struct
-func (p *PurchaseOrders) Create(provider xerogolang.IProvider, session goth.Session) (*PurchaseOrders, error) {
+func (p *PurchaseOrders) Create(ctx context.Context, provider xerogolang.IProvider, session goth.Session) (*PurchaseOrders, error) {
 	additionalHeaders := map[string]string{
 		"Accept":       "application/json",
 		"Content-Type": "application/xml",
@@ -133,7 +134,7 @@ func (p *PurchaseOrders) Create(provider xerogolang.IProvider, session goth.Sess
 		return nil, err
 	}
 
-	purchaseOrderResponseBytes, err := provider.Create(session, "PurchaseOrders", additionalHeaders, body)
+	purchaseOrderResponseBytes, err := provider.Create(ctx, session, "PurchaseOrders", additionalHeaders, body)
 	if err != nil {
 		return nil, err
 	}
@@ -143,7 +144,7 @@ func (p *PurchaseOrders) Create(provider xerogolang.IProvider, session goth.Sess
 
 // Update will update an purchaseOrder given an PurchaseOrders struct
 // This will only handle single purchaseOrder - you cannot update multiple purchaseOrders in a single call
-func (p *PurchaseOrders) Update(provider xerogolang.IProvider, session goth.Session) (*PurchaseOrders, error) {
+func (p *PurchaseOrders) Update(ctx context.Context, provider xerogolang.IProvider, session goth.Session) (*PurchaseOrders, error) {
 	additionalHeaders := map[string]string{
 		"Accept":       "application/json",
 		"Content-Type": "application/xml",
@@ -154,7 +155,7 @@ func (p *PurchaseOrders) Update(provider xerogolang.IProvider, session goth.Sess
 		return nil, err
 	}
 
-	purchaseOrderResponseBytes, err := provider.Update(session, "PurchaseOrders/"+p.PurchaseOrders[0].PurchaseOrderID, additionalHeaders, body)
+	purchaseOrderResponseBytes, err := provider.Update(ctx, session, "PurchaseOrders/"+p.PurchaseOrders[0].PurchaseOrderID, additionalHeaders, body)
 	if err != nil {
 		return nil, err
 	}
@@ -165,7 +166,7 @@ func (p *PurchaseOrders) Update(provider xerogolang.IProvider, session goth.Sess
 // FindPurchaseOrdersModifiedSince will get all PurchaseOrders modified after a specified date.
 // Paging is enforced by default. 100 purchase orders are returned per page.
 // additional querystringParameters such as page, order, status, DateFrom & DateTo can be added as a map
-func FindPurchaseOrdersModifiedSince(provider xerogolang.IProvider, session goth.Session, modifiedSince time.Time, querystringParameters map[string]string) (*PurchaseOrders, error) {
+func FindPurchaseOrdersModifiedSince(ctx context.Context, provider xerogolang.IProvider, session goth.Session, modifiedSince time.Time, querystringParameters map[string]string) (*PurchaseOrders, error) {
 	additionalHeaders := map[string]string{
 		"Accept": "application/json",
 	}
@@ -174,7 +175,7 @@ func FindPurchaseOrdersModifiedSince(provider xerogolang.IProvider, session goth
 		additionalHeaders["If-Modified-Since"] = modifiedSince.Format(time.RFC3339)
 	}
 
-	purchaseOrderResponseBytes, err := provider.Find(session, "PurchaseOrders", additionalHeaders, querystringParameters)
+	purchaseOrderResponseBytes, err := provider.Find(ctx, session, "PurchaseOrders", additionalHeaders, querystringParameters)
 	if err != nil {
 		return nil, err
 	}
@@ -184,17 +185,17 @@ func FindPurchaseOrdersModifiedSince(provider xerogolang.IProvider, session goth
 
 // FindPurchaseOrders will get all PurchaseOrders. Paging is enforced by default. 100 purchase orders are returned per page.
 // additional querystringParameters such as page, order, status, DateFrom & DateTo can be added as a map
-func FindPurchaseOrders(provider xerogolang.IProvider, session goth.Session, querystringParameters map[string]string) (*PurchaseOrders, error) {
-	return FindPurchaseOrdersModifiedSince(provider, session, dayZero, querystringParameters)
+func FindPurchaseOrders(ctx context.Context, provider xerogolang.IProvider, session goth.Session, querystringParameters map[string]string) (*PurchaseOrders, error) {
+	return FindPurchaseOrdersModifiedSince(ctx, provider, session, dayZero, querystringParameters)
 }
 
 // FindPurchaseOrder will get a single purchaseOrder - purchaseOrderID can be a GUID for an purchaseOrder or an purchaseOrder number
-func FindPurchaseOrder(provider xerogolang.IProvider, session goth.Session, purchaseOrderID string) (*PurchaseOrders, error) {
+func FindPurchaseOrder(ctx context.Context, provider xerogolang.IProvider, session goth.Session, purchaseOrderID string) (*PurchaseOrders, error) {
 	additionalHeaders := map[string]string{
 		"Accept": "application/json",
 	}
 
-	purchaseOrderResponseBytes, err := provider.Find(session, "PurchaseOrders/"+purchaseOrderID, additionalHeaders, nil)
+	purchaseOrderResponseBytes, err := provider.Find(ctx, session, "PurchaseOrders/"+purchaseOrderID, additionalHeaders, nil)
 	if err != nil {
 		return nil, err
 	}

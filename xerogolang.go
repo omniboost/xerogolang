@@ -2,12 +2,13 @@ package xerogolang
 
 import (
 	"bytes"
+	"context"
 	"crypto/x509"
 	"encoding/json"
 	"encoding/pem"
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 	"net/http"
 	"net/url"
@@ -38,10 +39,10 @@ var (
 )
 
 type IProvider interface {
-	Find(goth.Session, string, map[string]string, map[string]string) ([]byte, error)
-	Create(goth.Session, string, map[string]string, []byte) ([]byte, error)
-	Update(goth.Session, string, map[string]string, []byte) ([]byte, error)
-	Remove(goth.Session, string, map[string]string) ([]byte, error)
+	Find(context.Context, goth.Session, string, map[string]string, map[string]string) ([]byte, error)
+	Create(context.Context, goth.Session, string, map[string]string, []byte) ([]byte, error)
+	Update(context.Context, goth.Session, string, map[string]string, []byte) ([]byte, error)
+	Remove(context.Context, goth.Session, string, map[string]string) ([]byte, error)
 }
 
 // Provider is the implementation of `goth.Provider` for accessing Xero.
@@ -285,7 +286,7 @@ func (p *Provider) processRequest(request *http.Request, session goth.Session, a
 		)
 	}
 
-	responseBytes, err := ioutil.ReadAll(response.Body)
+	responseBytes, err := io.ReadAll(response.Body)
 	if err != nil {
 		return nil, fmt.Errorf("Could not read response: %s", err.Error())
 	}
@@ -296,7 +297,7 @@ func (p *Provider) processRequest(request *http.Request, session goth.Session, a
 }
 
 // Find retrieves the requested data from an endpoint to be unmarshaled into the appropriate data type
-func (p *Provider) Find(session goth.Session, endpoint string, additionalHeaders map[string]string, querystringParameters map[string]string) ([]byte, error) {
+func (p *Provider) Find(ctx context.Context, session goth.Session, endpoint string, additionalHeaders map[string]string, querystringParameters map[string]string) ([]byte, error) {
 	var querystring string
 	if querystringParameters != nil {
 		for key, value := range querystringParameters {
@@ -307,7 +308,7 @@ func (p *Provider) Find(session goth.Session, endpoint string, additionalHeaders
 		querystring = "?" + querystring
 	}
 
-	request, err := http.NewRequest("GET", endpointProfile+endpoint+querystring, nil)
+	request, err := http.NewRequestWithContext(ctx, "GET", endpointProfile+endpoint+querystring, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -316,10 +317,10 @@ func (p *Provider) Find(session goth.Session, endpoint string, additionalHeaders
 }
 
 // Create sends data to an endpoint and returns a response to be unmarshaled into the appropriate data type
-func (p *Provider) Create(session goth.Session, endpoint string, additionalHeaders map[string]string, body []byte) ([]byte, error) {
+func (p *Provider) Create(ctx context.Context, session goth.Session, endpoint string, additionalHeaders map[string]string, body []byte) ([]byte, error) {
 	bodyReader := bytes.NewReader(body)
 
-	request, err := http.NewRequest("PUT", endpointProfile+endpoint, bodyReader)
+	request, err := http.NewRequestWithContext(ctx, "PUT", endpointProfile+endpoint, bodyReader)
 	if err != nil {
 		return nil, err
 	}
@@ -328,10 +329,10 @@ func (p *Provider) Create(session goth.Session, endpoint string, additionalHeade
 }
 
 // Update sends data to an endpoint and returns a response to be unmarshaled into the appropriate data type
-func (p *Provider) Update(session goth.Session, endpoint string, additionalHeaders map[string]string, body []byte) ([]byte, error) {
+func (p *Provider) Update(ctx context.Context, session goth.Session, endpoint string, additionalHeaders map[string]string, body []byte) ([]byte, error) {
 	bodyReader := bytes.NewReader(body)
 
-	request, err := http.NewRequest("POST", endpointProfile+endpoint, bodyReader)
+	request, err := http.NewRequestWithContext(ctx, "POST", endpointProfile+endpoint, bodyReader)
 	if err != nil {
 		return nil, err
 	}
@@ -340,8 +341,8 @@ func (p *Provider) Update(session goth.Session, endpoint string, additionalHeade
 }
 
 // Remove deletes the specified data from an endpoint
-func (p *Provider) Remove(session goth.Session, endpoint string, additionalHeaders map[string]string) ([]byte, error) {
-	request, err := http.NewRequest("DELETE", endpointProfile+endpoint, nil)
+func (p *Provider) Remove(ctx context.Context, session goth.Session, endpoint string, additionalHeaders map[string]string) ([]byte, error) {
+	request, err := http.NewRequestWithContext(ctx, "DELETE", endpointProfile+endpoint, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -382,7 +383,7 @@ func (p *Provider) FetchUser(session goth.Session) (goth.User, error) {
 	additionalHeaders := map[string]string{
 		"Accept": "application/json",
 	}
-	responseBytes, err := p.Find(sess, "Organisation", additionalHeaders, nil)
+	responseBytes, err := p.Find(context.Background(), sess, "Organisation", additionalHeaders, nil)
 	if err != nil {
 		return user, err
 	}

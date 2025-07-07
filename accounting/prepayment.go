@@ -1,6 +1,7 @@
 package accounting
 
 import (
+	"context"
 	"encoding/json"
 	"encoding/xml"
 	"time"
@@ -101,7 +102,7 @@ func unmarshalPrepayment(prepaymentResponseBytes []byte) (*Prepayments, error) {
 // These Prepayments will not have details like default line items by default.
 // If you need details then add a 'page' querystringParameter and get 100 Prepayments at a time
 // additional querystringParameters such as where, page, order can be added as a map
-func FindPrepaymentsModifiedSince(provider xerogolang.IProvider, session goth.Session, modifiedSince time.Time, querystringParameters map[string]string) (*Prepayments, error) {
+func FindPrepaymentsModifiedSince(ctx context.Context, provider xerogolang.IProvider, session goth.Session, modifiedSince time.Time, querystringParameters map[string]string) (*Prepayments, error) {
 	additionalHeaders := map[string]string{
 		"Accept": "application/json",
 	}
@@ -110,7 +111,7 @@ func FindPrepaymentsModifiedSince(provider xerogolang.IProvider, session goth.Se
 		additionalHeaders["If-Modified-Since"] = modifiedSince.Format(time.RFC3339)
 	}
 
-	prepaymentResponseBytes, err := provider.Find(session, "Prepayments", additionalHeaders, querystringParameters)
+	prepaymentResponseBytes, err := provider.Find(ctx, session, "Prepayments", additionalHeaders, querystringParameters)
 	if err != nil {
 		return nil, err
 	}
@@ -121,17 +122,17 @@ func FindPrepaymentsModifiedSince(provider xerogolang.IProvider, session goth.Se
 // FindPrepayments will get all Prepayments. These Prepayment will not have details like line items by default.
 // If you need details then add a 'page' querystringParameter and get 100 Prepayments at a time
 // additional querystringParameters such as where, page, order can be added as a map
-func FindPrepayments(provider xerogolang.IProvider, session goth.Session, querystringParameters map[string]string) (*Prepayments, error) {
-	return FindPrepaymentsModifiedSince(provider, session, dayZero, querystringParameters)
+func FindPrepayments(ctx context.Context, provider xerogolang.IProvider, session goth.Session, querystringParameters map[string]string) (*Prepayments, error) {
+	return FindPrepaymentsModifiedSince(ctx, provider, session, dayZero, querystringParameters)
 }
 
 // FindPrepayment will get a single prepayment - prepaymentID can be a GUID for an prepayment or an prepayment number
-func FindPrepayment(provider xerogolang.IProvider, session goth.Session, prepaymentID string) (*Prepayments, error) {
+func FindPrepayment(ctx context.Context, provider xerogolang.IProvider, session goth.Session, prepaymentID string) (*Prepayments, error) {
 	additionalHeaders := map[string]string{
 		"Accept": "application/json",
 	}
 
-	prepaymentResponseBytes, err := provider.Find(session, "Prepayments/"+prepaymentID, additionalHeaders, nil)
+	prepaymentResponseBytes, err := provider.Find(ctx, session, "Prepayments/"+prepaymentID, additionalHeaders, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -141,7 +142,7 @@ func FindPrepayment(provider xerogolang.IProvider, session goth.Session, prepaym
 
 // Allocate allocates a prepayment - to create a prepayment
 // use the bankTransactions endpoint.
-func (p *Prepayments) Allocate(provider xerogolang.IProvider, session goth.Session, allocations Allocations) (*Prepayments, error) {
+func (p *Prepayments) Allocate(ctx context.Context, provider xerogolang.IProvider, session goth.Session, allocations Allocations) (*Prepayments, error) {
 	additionalHeaders := map[string]string{
 		"Accept":       "application/json",
 		"Content-Type": "application/xml",
@@ -152,7 +153,7 @@ func (p *Prepayments) Allocate(provider xerogolang.IProvider, session goth.Sessi
 		return nil, err
 	}
 
-	prepaymentResponseBytes, err := provider.Create(session, "Prepayments/"+p.Prepayments[0].PrepaymentID+"/Allocations", additionalHeaders, body)
+	prepaymentResponseBytes, err := provider.Create(ctx, session, "Prepayments/"+p.Prepayments[0].PrepaymentID+"/Allocations", additionalHeaders, body)
 	if err != nil {
 		return nil, err
 	}

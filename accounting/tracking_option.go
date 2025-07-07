@@ -1,6 +1,7 @@
 package accounting
 
 import (
+	"context"
 	"encoding/xml"
 
 	"github.com/markbates/goth"
@@ -30,7 +31,7 @@ type Options struct {
 
 // Add will add tracking options to the TrackingCategory Specified on the first option
 // All options should belong to the same Tracking Category
-func (o *Options) Add(provider xerogolang.IProvider, session goth.Session) (*TrackingCategories, error) {
+func (o *Options) Add(ctx context.Context, provider xerogolang.IProvider, session goth.Session) (*TrackingCategories, error) {
 	additionalHeaders := map[string]string{
 		"Accept":       "application/json",
 		"Content-Type": "application/xml",
@@ -41,7 +42,7 @@ func (o *Options) Add(provider xerogolang.IProvider, session goth.Session) (*Tra
 		return nil, err
 	}
 
-	trackingCategoryResponseBytes, err := provider.Create(session, "TrackingCategories/"+o.Options[0].TrackingCategoryID+"/Options", additionalHeaders, body)
+	trackingCategoryResponseBytes, err := provider.Create(ctx, session, "TrackingCategories/"+o.Options[0].TrackingCategoryID+"/Options", additionalHeaders, body)
 	if err != nil {
 		return nil, err
 	}
@@ -50,7 +51,7 @@ func (o *Options) Add(provider xerogolang.IProvider, session goth.Session) (*Tra
 }
 
 // Update will update a given tracking option
-func (t *TrackingOption) Update(provider xerogolang.IProvider, session goth.Session) (*TrackingCategories, error) {
+func (t *TrackingOption) Update(ctx context.Context, provider xerogolang.IProvider, session goth.Session) (*TrackingCategories, error) {
 	additionalHeaders := map[string]string{
 		"Accept":       "application/json",
 		"Content-Type": "application/xml",
@@ -61,7 +62,7 @@ func (t *TrackingOption) Update(provider xerogolang.IProvider, session goth.Sess
 		return nil, err
 	}
 
-	trackingCategoryResponseBytes, err := provider.Update(session, "TrackingCategories/"+t.TrackingCategoryID+"/Options/"+t.TrackingOptionID, additionalHeaders, body)
+	trackingCategoryResponseBytes, err := provider.Update(ctx, session, "TrackingCategories/"+t.TrackingCategoryID+"/Options/"+t.TrackingOptionID, additionalHeaders, body)
 	if err != nil {
 		return nil, err
 	}

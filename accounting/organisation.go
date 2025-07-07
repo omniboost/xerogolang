@@ -1,6 +1,7 @@
 package accounting
 
 import (
+	"context"
 	"encoding/json"
 
 	"github.com/markbates/goth"
@@ -105,12 +106,12 @@ type OrganisationCollection struct {
 }
 
 // FindOrganisation returns details about the Xero organisation you're connected to
-func FindOrganisation(provider xerogolang.IProvider, session goth.Session) (*OrganisationCollection, error) {
+func FindOrganisation(ctx context.Context, provider xerogolang.IProvider, session goth.Session) (*OrganisationCollection, error) {
 	additionalHeaders := map[string]string{
 		"Accept": "application/json",
 	}
 
-	organisationResponseBytes, err := provider.Find(session, "Organisation", additionalHeaders, nil)
+	organisationResponseBytes, err := provider.Find(ctx, session, "Organisation", additionalHeaders, nil)
 	if err != nil {
 		return nil, err
 	}

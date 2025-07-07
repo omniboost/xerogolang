@@ -1,6 +1,7 @@
 package accounting
 
 import (
+	"context"
 	"encoding/json"
 	"encoding/xml"
 	"time"
@@ -84,7 +85,7 @@ func unmarshalBankTransfer(bankTransferResponseBytes []byte) (*BankTransfers, er
 }
 
 // Create will create bankTransfers given a BankTransfers struct
-func (b *BankTransfers) Create(provider xerogolang.IProvider, session goth.Session) (*BankTransfers, error) {
+func (b *BankTransfers) Create(ctx context.Context, provider xerogolang.IProvider, session goth.Session) (*BankTransfers, error) {
 	additionalHeaders := map[string]string{
 		"Accept":       "application/json",
 		"Content-Type": "application/xml",
@@ -95,7 +96,7 @@ func (b *BankTransfers) Create(provider xerogolang.IProvider, session goth.Sessi
 		return nil, err
 	}
 
-	bankTransferResponseBytes, err := provider.Create(session, "BankTransfers", additionalHeaders, body)
+	bankTransferResponseBytes, err := provider.Create(ctx, session, "BankTransfers", additionalHeaders, body)
 	if err != nil {
 		return nil, err
 	}
@@ -107,7 +108,7 @@ func (b *BankTransfers) Create(provider xerogolang.IProvider, session goth.Sessi
 // These BankTransfers will not have details like default line items by default.
 // If you need details then add a 'page' querystringParameter and get 100 BankTransfers at a time
 // additional querystringParameters such as where and order can be added as a map
-func FindBankTransfersModifiedSince(provider xerogolang.IProvider, session goth.Session, modifiedSince time.Time, querystringParameters map[string]string) (*BankTransfers, error) {
+func FindBankTransfersModifiedSince(ctx context.Context, provider xerogolang.IProvider, session goth.Session, modifiedSince time.Time, querystringParameters map[string]string) (*BankTransfers, error) {
 	additionalHeaders := map[string]string{
 		"Accept": "application/json",
 	}
@@ -116,7 +117,7 @@ func FindBankTransfersModifiedSince(provider xerogolang.IProvider, session goth.
 		additionalHeaders["If-Modified-Since"] = modifiedSince.Format(time.RFC3339)
 	}
 
-	bankTransferResponseBytes, err := provider.Find(session, "BankTransfers", additionalHeaders, querystringParameters)
+	bankTransferResponseBytes, err := provider.Find(ctx, session, "BankTransfers", additionalHeaders, querystringParameters)
 	if err != nil {
 		return nil, err
 	}
@@ -127,17 +128,17 @@ func FindBankTransfersModifiedSince(provider xerogolang.IProvider, session goth.
 // FindBankTransfers will get all BankTransfers. These BankTransfer will not have details like line items by default.
 // If you need details then add a 'page' querystringParameter and get 100 BankTransfers at a time
 // additional querystringParameters such as where and order can be added as a map
-func FindBankTransfers(provider xerogolang.IProvider, session goth.Session, querystringParameters map[string]string) (*BankTransfers, error) {
-	return FindBankTransfersModifiedSince(provider, session, dayZero, querystringParameters)
+func FindBankTransfers(ctx context.Context, provider xerogolang.IProvider, session goth.Session, querystringParameters map[string]string) (*BankTransfers, error) {
+	return FindBankTransfersModifiedSince(ctx, provider, session, dayZero, querystringParameters)
 }
 
 // FindBankTransfer will get a single bankTransfer - bankTransferID can be a GUID for an bankTransfer or an bankTransfer number
-func FindBankTransfer(provider xerogolang.IProvider, session goth.Session, bankTransferID string) (*BankTransfers, error) {
+func FindBankTransfer(ctx context.Context, provider xerogolang.IProvider, session goth.Session, bankTransferID string) (*BankTransfers, error) {
 	additionalHeaders := map[string]string{
 		"Accept": "application/json",
 	}
 
-	bankTransferResponseBytes, err := provider.Find(session, "BankTransfers/"+bankTransferID, additionalHeaders, nil)
+	bankTransferResponseBytes, err := provider.Find(ctx, session, "BankTransfers/"+bankTransferID, additionalHeaders, nil)
 	if err != nil {
 		return nil, err
 	}

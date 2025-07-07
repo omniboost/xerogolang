@@ -1,6 +1,7 @@
 package accounting
 
 import (
+	"context"
 	"encoding/json"
 	"encoding/xml"
 	"time"
@@ -110,7 +111,7 @@ func unmarshalBankTransaction(bankTransactionResponseBytes []byte) (*BankTransac
 }
 
 // Create will create BankTransactions given an BankTransactions struct
-func (b *BankTransactions) Create(provider xerogolang.IProvider, session goth.Session) (*BankTransactions, error) {
+func (b *BankTransactions) Create(ctx context.Context, provider xerogolang.IProvider, session goth.Session) (*BankTransactions, error) {
 	additionalHeaders := map[string]string{
 		"Accept":       "application/json",
 		"Content-Type": "application/xml",
@@ -121,7 +122,7 @@ func (b *BankTransactions) Create(provider xerogolang.IProvider, session goth.Se
 		return nil, err
 	}
 
-	bankTransactionResponseBytes, err := provider.Create(session, "BankTransactions", additionalHeaders, body)
+	bankTransactionResponseBytes, err := provider.Create(ctx, session, "BankTransactions", additionalHeaders, body)
 	if err != nil {
 		return nil, err
 	}
@@ -131,7 +132,7 @@ func (b *BankTransactions) Create(provider xerogolang.IProvider, session goth.Se
 
 // Update will update a BankTransaction given a BankTransactions struct
 // This will only handle single BankTransaction - you cannot update multiple BankTransactions in a single call
-func (b *BankTransactions) Update(provider xerogolang.IProvider, session goth.Session) (*BankTransactions, error) {
+func (b *BankTransactions) Update(ctx context.Context, provider xerogolang.IProvider, session goth.Session) (*BankTransactions, error) {
 	additionalHeaders := map[string]string{
 		"Accept":       "application/json",
 		"Content-Type": "application/xml",
@@ -142,7 +143,7 @@ func (b *BankTransactions) Update(provider xerogolang.IProvider, session goth.Se
 		return nil, err
 	}
 
-	bankTransactionResponseBytes, err := provider.Update(session, "BankTransactions/"+b.BankTransactions[0].BankTransactionID, additionalHeaders, body)
+	bankTransactionResponseBytes, err := provider.Update(ctx, session, "BankTransactions/"+b.BankTransactions[0].BankTransactionID, additionalHeaders, body)
 	if err != nil {
 		return nil, err
 	}
@@ -154,7 +155,7 @@ func (b *BankTransactions) Update(provider xerogolang.IProvider, session goth.Se
 // These BankTransactions will not have details like default account codes and tracking categories by default.
 // If you need details then then add a 'page' querystringParameter and get 100 BankTransactions at a time
 // additional querystringParameters such as where, page, order can be added as a map
-func FindBankTransactionsModifiedSince(provider xerogolang.IProvider, session goth.Session, modifiedSince time.Time, querystringParameters map[string]string) (*BankTransactions, error) {
+func FindBankTransactionsModifiedSince(ctx context.Context, provider xerogolang.IProvider, session goth.Session, modifiedSince time.Time, querystringParameters map[string]string) (*BankTransactions, error) {
 	additionalHeaders := map[string]string{
 		"Accept": "application/json",
 	}
@@ -163,7 +164,7 @@ func FindBankTransactionsModifiedSince(provider xerogolang.IProvider, session go
 		additionalHeaders["If-Modified-Since"] = modifiedSince.Format(time.RFC3339)
 	}
 
-	bankTransactionResponseBytes, err := provider.Find(session, "BankTransactions", additionalHeaders, querystringParameters)
+	bankTransactionResponseBytes, err := provider.Find(ctx, session, "BankTransactions", additionalHeaders, querystringParameters)
 	if err != nil {
 		return nil, err
 	}
@@ -174,17 +175,17 @@ func FindBankTransactionsModifiedSince(provider xerogolang.IProvider, session go
 // FindBankTransactions will get all BankTransactions. These BankTransaction will not have details like line items by default.
 // If you need details then then add a 'page' querystringParameter and get 100 BankTransactions at a time
 // additional querystringParameters such as where, page, order can be added as a map
-func FindBankTransactions(provider xerogolang.IProvider, session goth.Session, querystringParameters map[string]string) (*BankTransactions, error) {
-	return FindBankTransactionsModifiedSince(provider, session, dayZero, querystringParameters)
+func FindBankTransactions(ctx context.Context, provider xerogolang.IProvider, session goth.Session, querystringParameters map[string]string) (*BankTransactions, error) {
+	return FindBankTransactionsModifiedSince(ctx, provider, session, dayZero, querystringParameters)
 }
 
 // FindBankTransaction will get a single BankTransaction - BankTransactionID can be a GUID for an BankTransaction or an BankTransaction number
-func FindBankTransaction(provider xerogolang.IProvider, session goth.Session, bankTransactionID string) (*BankTransactions, error) {
+func FindBankTransaction(ctx context.Context, provider xerogolang.IProvider, session goth.Session, bankTransactionID string) (*BankTransactions, error) {
 	additionalHeaders := map[string]string{
 		"Accept": "application/json",
 	}
 
-	bankTransactionResponseBytes, err := provider.Find(session, "BankTransactions/"+bankTransactionID, additionalHeaders, nil)
+	bankTransactionResponseBytes, err := provider.Find(ctx, session, "BankTransactions/"+bankTransactionID, additionalHeaders, nil)
 	if err != nil {
 		return nil, err
 	}

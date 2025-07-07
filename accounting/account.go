@@ -1,6 +1,7 @@
 package accounting
 
 import (
+	"context"
 	"encoding/json"
 	"encoding/xml"
 	"time"
@@ -103,7 +104,7 @@ func unmarshalAccount(accountResponseBytes []byte) (*Accounts, error) {
 }
 
 // Create will create accounts given an Accounts struct
-func (a *Accounts) Create(provider xerogolang.IProvider, session goth.Session) (*Accounts, error) {
+func (a *Accounts) Create(ctx context.Context, provider xerogolang.IProvider, session goth.Session) (*Accounts, error) {
 	additionalHeaders := map[string]string{
 		"Accept":       "application/json",
 		"Content-Type": "application/xml",
@@ -114,7 +115,7 @@ func (a *Accounts) Create(provider xerogolang.IProvider, session goth.Session) (
 		return nil, err
 	}
 
-	accountResponseBytes, err := provider.Create(session, "Accounts", additionalHeaders, body)
+	accountResponseBytes, err := provider.Create(ctx, session, "Accounts", additionalHeaders, body)
 	if err != nil {
 		return nil, err
 	}
@@ -124,7 +125,7 @@ func (a *Accounts) Create(provider xerogolang.IProvider, session goth.Session) (
 
 // Update will update an account given an Accounts struct
 // This will only handle single account - you cannot update multiple accounts in a single call
-func (a *Accounts) Update(provider xerogolang.IProvider, session goth.Session) (*Accounts, error) {
+func (a *Accounts) Update(ctx context.Context, provider xerogolang.IProvider, session goth.Session) (*Accounts, error) {
 	additionalHeaders := map[string]string{
 		"Accept":       "application/json",
 		"Content-Type": "application/xml",
@@ -135,7 +136,7 @@ func (a *Accounts) Update(provider xerogolang.IProvider, session goth.Session) (
 		return nil, err
 	}
 
-	accountResponseBytes, err := provider.Update(session, "Accounts/"+a.Accounts[0].AccountID, additionalHeaders, body)
+	accountResponseBytes, err := provider.Update(ctx, session, "Accounts/"+a.Accounts[0].AccountID, additionalHeaders, body)
 	if err != nil {
 		return nil, err
 	}
@@ -145,7 +146,7 @@ func (a *Accounts) Update(provider xerogolang.IProvider, session goth.Session) (
 
 // FindAccountsModifiedSince will get all accounts modified after a specified date.
 // additional querystringParameters such as where and order can be added as a map
-func FindAccountsModifiedSince(provider xerogolang.IProvider, session goth.Session, modifiedSince time.Time, querystringParameters map[string]string) (*Accounts, error) {
+func FindAccountsModifiedSince(ctx context.Context, provider xerogolang.IProvider, session goth.Session, modifiedSince time.Time, querystringParameters map[string]string) (*Accounts, error) {
 	additionalHeaders := map[string]string{
 		"Accept": "application/json",
 	}
@@ -154,7 +155,7 @@ func FindAccountsModifiedSince(provider xerogolang.IProvider, session goth.Sessi
 		additionalHeaders["If-Modified-Since"] = modifiedSince.Format(time.RFC3339)
 	}
 
-	accountResponseBytes, err := provider.Find(session, "Accounts", additionalHeaders, querystringParameters)
+	accountResponseBytes, err := provider.Find(ctx, session, "Accounts", additionalHeaders, querystringParameters)
 	if err != nil {
 		return nil, err
 	}
@@ -164,17 +165,17 @@ func FindAccountsModifiedSince(provider xerogolang.IProvider, session goth.Sessi
 
 // FindAccounts will get all accounts. These account will not have details like line items.
 // additional querystringParameters such as where and order can be added as a map
-func FindAccounts(provider xerogolang.IProvider, session goth.Session, querystringParameters map[string]string) (*Accounts, error) {
-	return FindAccountsModifiedSince(provider, session, dayZero, querystringParameters)
+func FindAccounts(ctx context.Context, provider xerogolang.IProvider, session goth.Session, querystringParameters map[string]string) (*Accounts, error) {
+	return FindAccountsModifiedSince(ctx, provider, session, dayZero, querystringParameters)
 }
 
 // FindAccount will get a single account - accountID must be a GUID for an account
-func FindAccount(provider xerogolang.IProvider, session goth.Session, accountID string) (*Accounts, error) {
+func FindAccount(ctx context.Context, provider xerogolang.IProvider, session goth.Session, accountID string) (*Accounts, error) {
 	additionalHeaders := map[string]string{
 		"Accept": "application/json",
 	}
 
-	accountResponseBytes, err := provider.Find(session, "Accounts/"+accountID, additionalHeaders, nil)
+	accountResponseBytes, err := provider.Find(ctx, session, "Accounts/"+accountID, additionalHeaders, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -183,12 +184,12 @@ func FindAccount(provider xerogolang.IProvider, session goth.Session, accountID 
 }
 
 // RemoveAccount will get a single account - accountID must be a GUID for an account
-func RemoveAccount(provider xerogolang.IProvider, session goth.Session, accountID string) (*Accounts, error) {
+func RemoveAccount(ctx context.Context, provider xerogolang.IProvider, session goth.Session, accountID string) (*Accounts, error) {
 	additionalHeaders := map[string]string{
 		"Accept": "application/json",
 	}
 
-	accountResponseBytes, err := provider.Remove(session, "Accounts/"+accountID, additionalHeaders)
+	accountResponseBytes, err := provider.Remove(ctx, session, "Accounts/"+accountID, additionalHeaders)
 	if err != nil {
 		return nil, err
 	}

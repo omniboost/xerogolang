@@ -4,8 +4,8 @@ import (
 	"bytes"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
+	"os"
 	"regexp"
 	"strconv"
 	"strings"
@@ -115,7 +115,7 @@ func ReadPrivateKeyFromPath(privateKeyFilePath string) string {
 		return ""
 	}
 
-	privateKeyFileContents, err := ioutil.ReadFile(privateKeyFilePath)
+	privateKeyFileContents, err := os.ReadFile(privateKeyFilePath)
 	if err != nil {
 		log.Fatal(err)
 	}

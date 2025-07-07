@@ -1,6 +1,7 @@
 package xerogolang
 
 import (
+	"context"
 	"encoding/json"
 	"encoding/xml"
 	"fmt"
@@ -101,7 +102,7 @@ func Test_Find(t *testing.T) {
 			"Accept": "application/json",
 		}
 
-		response, err := provider.Find(&session, "TrackingCategories", additionalHeaders, nil)
+		response, err := provider.Find(context.Background(), &session, "TrackingCategories", additionalHeaders, nil)
 		if err != nil {
 			a.Error(err, nil)
 		}
@@ -150,7 +151,7 @@ func Test_Create(t *testing.T) {
 			a.Error(err, nil)
 		}
 
-		response, err := provider.Create(&session, "TrackingCategories", additionalHeaders, body)
+		response, err := provider.Create(context.Background(), &session, "TrackingCategories", additionalHeaders, body)
 		if err != nil {
 			a.Error(err, nil)
 		}
@@ -198,7 +199,7 @@ func Test_Update(t *testing.T) {
 			a.Error(err, nil)
 		}
 
-		response, err := provider.Update(&session, "TrackingCategories/111-111", additionalHeaders, body)
+		response, err := provider.Update(context.Background(), &session, "TrackingCategories/111-111", additionalHeaders, body)
 		if err != nil {
 			a.Error(err, nil)
 		}
@@ -230,7 +231,7 @@ func Test_Remove(t *testing.T) {
 			"Accept": "application/json",
 		}
 
-		response, err := provider.Remove(&session, "TrackingCategories/111-111", additionalHeaders)
+		response, err := provider.Remove(context.Background(), &session, "TrackingCategories/111-111", additionalHeaders)
 		if err != nil {
 			a.Error(err, nil)
 		}

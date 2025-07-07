@@ -1,6 +1,7 @@
 package accounting
 
 import (
+	"context"
 	"encoding/json"
 	"encoding/xml"
 	"time"
@@ -163,7 +164,7 @@ func unmarshalContact(contactResponseBytes []byte) (*Contacts, error) {
 }
 
 // Create will create Contacts given an Contacts struct
-func (c *Contacts) Create(provider xerogolang.IProvider, session goth.Session) (*Contacts, error) {
+func (c *Contacts) Create(ctx context.Context, provider xerogolang.IProvider, session goth.Session) (*Contacts, error) {
 	additionalHeaders := map[string]string{
 		"Accept":       "application/json",
 		"Content-Type": "application/xml",
@@ -174,7 +175,7 @@ func (c *Contacts) Create(provider xerogolang.IProvider, session goth.Session) (
 		return nil, err
 	}
 
-	contactResponseBytes, err := provider.Create(session, "Contacts", additionalHeaders, body)
+	contactResponseBytes, err := provider.Create(ctx, session, "Contacts", additionalHeaders, body)
 	if err != nil {
 		return nil, err
 	}
@@ -184,7 +185,7 @@ func (c *Contacts) Create(provider xerogolang.IProvider, session goth.Session) (
 
 // Update will update a Contact given a Contacts struct
 // This will only handle single Contact - you cannot update multiple Contacts in a single call
-func (c *Contacts) Update(provider xerogolang.IProvider, session goth.Session) (*Contacts, error) {
+func (c *Contacts) Update(ctx context.Context, provider xerogolang.IProvider, session goth.Session) (*Contacts, error) {
 	additionalHeaders := map[string]string{
 		"Accept":       "application/json",
 		"Content-Type": "application/xml",
@@ -195,7 +196,7 @@ func (c *Contacts) Update(provider xerogolang.IProvider, session goth.Session) (
 		return nil, err
 	}
 
-	contactResponseBytes, err := provider.Update(session, "Contacts/"+c.Contacts[0].ContactID, additionalHeaders, body)
+	contactResponseBytes, err := provider.Update(ctx, session, "Contacts/"+c.Contacts[0].ContactID, additionalHeaders, body)
 	if err != nil {
 		return nil, err
 	}
@@ -207,7 +208,7 @@ func (c *Contacts) Update(provider xerogolang.IProvider, session goth.Session) (
 // These Contacts will not have details like default account codes and tracking categories.
 // If you need details then then add a 'page' querystringParameter and get 100 Contacts at a time
 // additional querystringParameters such as where, page, order can be added as a map
-func FindContactsModifiedSince(provider xerogolang.IProvider, session goth.Session, modifiedSince time.Time, querystringParameters map[string]string) (*Contacts, error) {
+func FindContactsModifiedSince(ctx context.Context, provider xerogolang.IProvider, session goth.Session, modifiedSince time.Time, querystringParameters map[string]string) (*Contacts, error) {
 	additionalHeaders := map[string]string{
 		"Accept": "application/json",
 	}
@@ -216,7 +217,7 @@ func FindContactsModifiedSince(provider xerogolang.IProvider, session goth.Sessi
 		additionalHeaders["If-Modified-Since"] = modifiedSince.Format(time.RFC3339)
 	}
 
-	contactResponseBytes, err := provider.Find(session, "Contacts", additionalHeaders, querystringParameters)
+	contactResponseBytes, err := provider.Find(ctx, session, "Contacts", additionalHeaders, querystringParameters)
 	if err != nil {
 		return nil, err
 	}
@@ -227,17 +228,17 @@ func FindContactsModifiedSince(provider xerogolang.IProvider, session goth.Sessi
 // FindContacts will get all Contacts. These Contact will not have details like default accounts.
 // If you need details then then add a 'page' querystringParameter and get 100 Contacts at a time
 // additional querystringParameters such as where, page, order can be added as a map
-func FindContacts(provider xerogolang.IProvider, session goth.Session, querystringParameters map[string]string) (*Contacts, error) {
-	return FindContactsModifiedSince(provider, session, dayZero, querystringParameters)
+func FindContacts(ctx context.Context, provider xerogolang.IProvider, session goth.Session, querystringParameters map[string]string) (*Contacts, error) {
+	return FindContactsModifiedSince(ctx, provider, session, dayZero, querystringParameters)
 }
 
 // FindContact will get a single Contact - ContactID can be a GUID for an Contact or an Contact number
-func FindContact(provider xerogolang.IProvider, session goth.Session, contactID string) (*Contacts, error) {
+func FindContact(ctx context.Context, provider xerogolang.IProvider, session goth.Session, contactID string) (*Contacts, error) {
 	additionalHeaders := map[string]string{
 		"Accept": "application/json",
 	}
 
-	contactResponseBytes, err := provider.Find(session, "Contacts/"+contactID, additionalHeaders, nil)
+	contactResponseBytes, err := provider.Find(ctx, session, "Contacts/"+contactID, additionalHeaders, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -246,7 +247,7 @@ func FindContact(provider xerogolang.IProvider, session goth.Session, contactID 
 }
 
 // AddToContactGroup will add a collection of Contacts to a supplied contactGroupID
-func (c *Contacts) AddToContactGroup(provider xerogolang.IProvider, session goth.Session, contactGroupID string) (*Contacts, error) {
+func (c *Contacts) AddToContactGroup(ctx context.Context, provider xerogolang.IProvider, session goth.Session, contactGroupID string) (*Contacts, error) {
 	additionalHeaders := map[string]string{
 		"Accept":       "application/json",
 		"Content-Type": "application/xml",
@@ -266,7 +267,7 @@ func (c *Contacts) AddToContactGroup(provider xerogolang.IProvider, session goth
 		return nil, err
 	}
 
-	contactResponseBytes, err := provider.Update(session, "ContactGroups/"+contactGroupID+"/Contacts", additionalHeaders, body)
+	contactResponseBytes, err := provider.Update(ctx, session, "ContactGroups/"+contactGroupID+"/Contacts", additionalHeaders, body)
 	if err != nil {
 		return nil, err
 	}
@@ -275,12 +276,12 @@ func (c *Contacts) AddToContactGroup(provider xerogolang.IProvider, session goth
 }
 
 // RemoveFromContactGroup will remove a Contact from a supplied contactGroupID - must be done one at a time.
-func (c *Contacts) RemoveFromContactGroup(provider xerogolang.IProvider, session goth.Session, contactGroupID string) (*Contacts, error) {
+func (c *Contacts) RemoveFromContactGroup(ctx context.Context, provider xerogolang.IProvider, session goth.Session, contactGroupID string) (*Contacts, error) {
 	additionalHeaders := map[string]string{
 		"Accept": "application/json",
 	}
 
-	contactResponseBytes, err := provider.Remove(session, "ContactGroups/"+contactGroupID+"/Contacts/"+c.Contacts[0].ContactID, additionalHeaders)
+	contactResponseBytes, err := provider.Remove(ctx, session, "ContactGroups/"+contactGroupID+"/Contacts/"+c.Contacts[0].ContactID, additionalHeaders)
 	if err != nil {
 		return nil, err
 	}

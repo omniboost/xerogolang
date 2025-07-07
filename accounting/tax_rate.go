@@ -1,6 +1,7 @@
 package accounting
 
 import (
+	"context"
 	"encoding/json"
 	"encoding/xml"
 
@@ -64,7 +65,7 @@ func unmarshalTaxRate(taxRateResponseBytes []byte) (*TaxRates, error) {
 }
 
 // Create will create taxRates given an TaxRates struct
-func (t *TaxRates) Create(provider xerogolang.IProvider, session goth.Session) (*TaxRates, error) {
+func (t *TaxRates) Create(ctx context.Context, provider xerogolang.IProvider, session goth.Session) (*TaxRates, error) {
 	additionalHeaders := map[string]string{
 		"Accept":       "application/json",
 		"Content-Type": "application/xml",
@@ -75,7 +76,7 @@ func (t *TaxRates) Create(provider xerogolang.IProvider, session goth.Session) (
 		return nil, err
 	}
 
-	taxRateResponseBytes, err := provider.Create(session, "TaxRates", additionalHeaders, body)
+	taxRateResponseBytes, err := provider.Create(ctx, session, "TaxRates", additionalHeaders, body)
 	if err != nil {
 		return nil, err
 	}
@@ -85,7 +86,7 @@ func (t *TaxRates) Create(provider xerogolang.IProvider, session goth.Session) (
 
 // Update will update an taxRate given an TaxRates struct
 // This will only handle a single taxRate - you cannot update multiple taxRates in a single call
-func (t *TaxRates) Update(provider xerogolang.IProvider, session goth.Session) (*TaxRates, error) {
+func (t *TaxRates) Update(ctx context.Context, provider xerogolang.IProvider, session goth.Session) (*TaxRates, error) {
 	additionalHeaders := map[string]string{
 		"Accept":       "application/json",
 		"Content-Type": "application/xml",
@@ -96,7 +97,7 @@ func (t *TaxRates) Update(provider xerogolang.IProvider, session goth.Session) (
 		return nil, err
 	}
 
-	taxRateResponseBytes, err := provider.Update(session, "TaxRates", additionalHeaders, body)
+	taxRateResponseBytes, err := provider.Update(ctx, session, "TaxRates", additionalHeaders, body)
 	if err != nil {
 		return nil, err
 	}
@@ -106,12 +107,12 @@ func (t *TaxRates) Update(provider xerogolang.IProvider, session goth.Session) (
 
 // FindTaxRates will get all TaxRates.
 // additional querystringParameters such as taxType, where and order can be added as a map
-func FindTaxRates(provider xerogolang.IProvider, session goth.Session, querystringParameters map[string]string) (*TaxRates, error) {
+func FindTaxRates(ctx context.Context, provider xerogolang.IProvider, session goth.Session, querystringParameters map[string]string) (*TaxRates, error) {
 	additionalHeaders := map[string]string{
 		"Accept": "application/json",
 	}
 
-	taxRateResponseBytes, err := provider.Find(session, "TaxRates", additionalHeaders, querystringParameters)
+	taxRateResponseBytes, err := provider.Find(ctx, session, "TaxRates", additionalHeaders, querystringParameters)
 	if err != nil {
 		return nil, err
 	}

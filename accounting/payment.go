@@ -1,6 +1,7 @@
 package accounting
 
 import (
+	"context"
 	"encoding/json"
 	"encoding/xml"
 	"time"
@@ -90,7 +91,7 @@ func unmarshalPayment(paymentResponseBytes []byte) (*Payments, error) {
 }
 
 // Create will create payments given an Payments struct
-func (p *Payments) Create(provider xerogolang.IProvider, session goth.Session) (*Payments, error) {
+func (p *Payments) Create(ctx context.Context, provider xerogolang.IProvider, session goth.Session) (*Payments, error) {
 	additionalHeaders := map[string]string{
 		"Accept":       "application/json",
 		"Content-Type": "application/json",
@@ -101,7 +102,7 @@ func (p *Payments) Create(provider xerogolang.IProvider, session goth.Session) (
 		return nil, err
 	}
 
-	paymentResponseBytes, err := provider.Create(session, "Payments", additionalHeaders, body)
+	paymentResponseBytes, err := provider.Create(ctx, session, "Payments", additionalHeaders, body)
 	if err != nil {
 		return nil, err
 	}
@@ -112,7 +113,7 @@ func (p *Payments) Create(provider xerogolang.IProvider, session goth.Session) (
 // Update will update an payment given an Payments struct
 // This will only handle single payment - you cannot update multiple payments in a single call
 // Payments cannot be modified, only created and deleted.
-func (p *Payments) Update(provider xerogolang.IProvider, session goth.Session) (*Payments, error) {
+func (p *Payments) Update(ctx context.Context, provider xerogolang.IProvider, session goth.Session) (*Payments, error) {
 	additionalHeaders := map[string]string{
 		"Accept":       "application/json",
 		"Content-Type": "application/xml",
@@ -128,7 +129,7 @@ func (p *Payments) Update(provider xerogolang.IProvider, session goth.Session) (
 		return nil, err
 	}
 
-	paymentResponseBytes, err := provider.Update(session, "Payments/"+p.Payments[0].PaymentID, additionalHeaders, body)
+	paymentResponseBytes, err := provider.Update(ctx, session, "Payments/"+p.Payments[0].PaymentID, additionalHeaders, body)
 	if err != nil {
 		return nil, err
 	}
@@ -138,7 +139,7 @@ func (p *Payments) Update(provider xerogolang.IProvider, session goth.Session) (
 
 // FindPaymentsModifiedSince will get all payments modified after a specified date.
 // additional querystringParameters such as where, page, order can be added as a map
-func FindPaymentsModifiedSince(provider xerogolang.IProvider, session goth.Session, modifiedSince time.Time, querystringParameters map[string]string) (*Payments, error) {
+func FindPaymentsModifiedSince(ctx context.Context, provider xerogolang.IProvider, session goth.Session, modifiedSince time.Time, querystringParameters map[string]string) (*Payments, error) {
 	additionalHeaders := map[string]string{
 		"Accept": "application/json",
 	}
@@ -147,7 +148,7 @@ func FindPaymentsModifiedSince(provider xerogolang.IProvider, session goth.Sessi
 		additionalHeaders["If-Modified-Since"] = modifiedSince.Format(time.RFC3339)
 	}
 
-	paymentResponseBytes, err := provider.Find(session, "Payments", additionalHeaders, querystringParameters)
+	paymentResponseBytes, err := provider.Find(ctx, session, "Payments", additionalHeaders, querystringParameters)
 	if err != nil {
 		return nil, err
 	}
@@ -156,17 +157,17 @@ func FindPaymentsModifiedSince(provider xerogolang.IProvider, session goth.Sessi
 }
 
 // FindPayments will get all payments.
-func FindPayments(provider xerogolang.IProvider, session goth.Session, querystringParameters map[string]string) (*Payments, error) {
-	return FindPaymentsModifiedSince(provider, session, dayZero, querystringParameters)
+func FindPayments(ctx context.Context, provider xerogolang.IProvider, session goth.Session, querystringParameters map[string]string) (*Payments, error) {
+	return FindPaymentsModifiedSince(ctx, provider, session, dayZero, querystringParameters)
 }
 
 // FindPayment will get a single payment - paymentID must be a GUID for an payment
-func FindPayment(provider xerogolang.IProvider, session goth.Session, paymentID string) (*Payments, error) {
+func FindPayment(ctx context.Context, provider xerogolang.IProvider, session goth.Session, paymentID string) (*Payments, error) {
 	additionalHeaders := map[string]string{
 		"Accept": "application/json",
 	}
 
-	paymentResponseBytes, err := provider.Find(session, "Payments/"+paymentID, additionalHeaders, nil)
+	paymentResponseBytes, err := provider.Find(ctx, session, "Payments/"+paymentID, additionalHeaders, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -175,12 +176,12 @@ func FindPayment(provider xerogolang.IProvider, session goth.Session, paymentID 
 }
 
 // RemovePayment will get a single payment - paymentID must be a GUID for an payment
-func RemovePayment(provider xerogolang.IProvider, session goth.Session, paymentID string) (*Payments, error) {
+func RemovePayment(ctx context.Context, provider xerogolang.IProvider, session goth.Session, paymentID string) (*Payments, error) {
 	additionalHeaders := map[string]string{
 		"Accept": "application/json",
 	}
 
-	paymentResponseBytes, err := provider.Remove(session, "Payments/"+paymentID, additionalHeaders)
+	paymentResponseBytes, err := provider.Remove(ctx, session, "Payments/"+paymentID, additionalHeaders)
 	if err != nil {
 		return nil, err
 	}

@@ -1,6 +1,7 @@
 package accounting
 
 import (
+	"context"
 	"encoding/json"
 
 	"github.com/markbates/goth"
@@ -33,12 +34,12 @@ func unmarshalCurrencies(currencyResponseBytes []byte) (*Currencies, error) {
 }
 
 // FindCurrencies will get all currencies
-func FindCurrencies(provider xerogolang.IProvider, session goth.Session) (*Currencies, error) {
+func FindCurrencies(ctx context.Context, provider xerogolang.IProvider, session goth.Session) (*Currencies, error) {
 	additionalHeaders := map[string]string{
 		"Accept": "application/json",
 	}
 
-	currencyResponseBytes, err := provider.Find(session, "Currencies", additionalHeaders, nil)
+	currencyResponseBytes, err := provider.Find(ctx, session, "Currencies", additionalHeaders, nil)
 	if err != nil {
 		return nil, err
 	}

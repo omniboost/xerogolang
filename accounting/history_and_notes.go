@@ -1,6 +1,7 @@
 package accounting
 
 import (
+	"context"
 	"encoding/json"
 
 	"github.com/markbates/goth"
@@ -58,7 +59,7 @@ func unmarshalHistoryRecord(HistoryRecordResponseBytes []byte) (*HistoryRecords,
 }
 
 // Create will create History Records given a HistoryRecords struct and a docType and id
-func (h *HistoryRecords) Create(provider xerogolang.IProvider, session goth.Session, docType string, id string) (*HistoryRecords, error) {
+func (h *HistoryRecords) Create(ctx context.Context, provider xerogolang.IProvider, session goth.Session, docType string, id string) (*HistoryRecords, error) {
 	additionalHeaders := map[string]string{
 		"Accept":       "application/json",
 		"Content-Type": "application/json",
@@ -69,7 +70,7 @@ func (h *HistoryRecords) Create(provider xerogolang.IProvider, session goth.Sess
 		return nil, err
 	}
 
-	historyRecordResponseBytes, err := provider.Create(session, docType+"/"+id+"/history", additionalHeaders, body)
+	historyRecordResponseBytes, err := provider.Create(ctx, session, docType+"/"+id+"/history", additionalHeaders, body)
 	if err != nil {
 		return nil, err
 	}
@@ -79,12 +80,12 @@ func (h *HistoryRecords) Create(provider xerogolang.IProvider, session goth.Sess
 
 // FindHistoryAndNotes gets all history items and notes for a given type and ID.
 // it is not supported on all endpoints.  See https://developer.xero.com/documentation/api/history-and-notes#SupportedDocs
-func FindHistoryAndNotes(provider xerogolang.IProvider, session goth.Session, docType string, id string) (*HistoryRecords, error) {
+func FindHistoryAndNotes(ctx context.Context, provider xerogolang.IProvider, session goth.Session, docType string, id string) (*HistoryRecords, error) {
 	additionalHeaders := map[string]string{
 		"Accept": "application/json",
 	}
 
-	historyRecordResponseBytes, err := provider.Find(session, docType+"/"+id+"/history", additionalHeaders, nil)
+	historyRecordResponseBytes, err := provider.Find(ctx, session, docType+"/"+id+"/history", additionalHeaders, nil)
 	if err != nil {
 		return nil, err
 	}

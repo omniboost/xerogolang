@@ -1,6 +1,7 @@
 package accounting
 
 import (
+	"context"
 	"encoding/json"
 	"encoding/xml"
 
@@ -40,7 +41,7 @@ func unmarshalContactGroup(contactGroupResponseBytes []byte) (*ContactGroups, er
 }
 
 // Create will create contactGroups given an ContactGroups struct
-func (c *ContactGroups) Create(provider xerogolang.IProvider, session goth.Session) (*ContactGroups, error) {
+func (c *ContactGroups) Create(ctx context.Context, provider xerogolang.IProvider, session goth.Session) (*ContactGroups, error) {
 	additionalHeaders := map[string]string{
 		"Accept":       "application/json",
 		"Content-Type": "application/xml",
@@ -51,7 +52,7 @@ func (c *ContactGroups) Create(provider xerogolang.IProvider, session goth.Sessi
 		return nil, err
 	}
 
-	contactGroupResponseBytes, err := provider.Create(session, "ContactGroups", additionalHeaders, body)
+	contactGroupResponseBytes, err := provider.Create(ctx, session, "ContactGroups", additionalHeaders, body)
 	if err != nil {
 		return nil, err
 	}
@@ -61,7 +62,7 @@ func (c *ContactGroups) Create(provider xerogolang.IProvider, session goth.Sessi
 
 // Update will update an contactGroup given an ContactGroups struct
 // This will only handle single contactGroup - you cannot update multiple contactGroups in a single call
-func (c *ContactGroups) Update(provider xerogolang.IProvider, session goth.Session) (*ContactGroups, error) {
+func (c *ContactGroups) Update(ctx context.Context, provider xerogolang.IProvider, session goth.Session) (*ContactGroups, error) {
 	additionalHeaders := map[string]string{
 		"Accept":       "application/json",
 		"Content-Type": "application/xml",
@@ -72,7 +73,7 @@ func (c *ContactGroups) Update(provider xerogolang.IProvider, session goth.Sessi
 		return nil, err
 	}
 
-	contactGroupResponseBytes, err := provider.Update(session, "ContactGroups/"+c.ContactGroups[0].ContactGroupID, additionalHeaders, body)
+	contactGroupResponseBytes, err := provider.Update(ctx, session, "ContactGroups/"+c.ContactGroups[0].ContactGroupID, additionalHeaders, body)
 	if err != nil {
 		return nil, err
 	}
@@ -81,12 +82,12 @@ func (c *ContactGroups) Update(provider xerogolang.IProvider, session goth.Sessi
 }
 
 // FindContactGroups will get all contactGroups
-func FindContactGroups(provider xerogolang.IProvider, session goth.Session) (*ContactGroups, error) {
+func FindContactGroups(ctx context.Context, provider xerogolang.IProvider, session goth.Session) (*ContactGroups, error) {
 	additionalHeaders := map[string]string{
 		"Accept": "application/json",
 	}
 
-	contactGroupResponseBytes, err := provider.Find(session, "ContactGroups", additionalHeaders, nil)
+	contactGroupResponseBytes, err := provider.Find(ctx, session, "ContactGroups", additionalHeaders, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -95,12 +96,12 @@ func FindContactGroups(provider xerogolang.IProvider, session goth.Session) (*Co
 }
 
 // FindContactGroup will get a single contactGroup - contactGroupID must be a GUID for an contactGroup
-func FindContactGroup(provider xerogolang.IProvider, session goth.Session, contactGroupID string) (*ContactGroups, error) {
+func FindContactGroup(ctx context.Context, provider xerogolang.IProvider, session goth.Session, contactGroupID string) (*ContactGroups, error) {
 	additionalHeaders := map[string]string{
 		"Accept": "application/json",
 	}
 
-	contactGroupResponseBytes, err := provider.Find(session, "ContactGroups/"+contactGroupID, additionalHeaders, nil)
+	contactGroupResponseBytes, err := provider.Find(ctx, session, "ContactGroups/"+contactGroupID, additionalHeaders, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -109,12 +110,12 @@ func FindContactGroup(provider xerogolang.IProvider, session goth.Session, conta
 }
 
 // RemoveContactGroup will get a single contactGroup - contactGroupID must be a GUID for an contactGroup
-func RemoveContactGroup(provider xerogolang.IProvider, session goth.Session, contactGroupID string) (*ContactGroups, error) {
+func RemoveContactGroup(ctx context.Context, provider xerogolang.IProvider, session goth.Session, contactGroupID string) (*ContactGroups, error) {
 	additionalHeaders := map[string]string{
 		"Accept": "application/json",
 	}
 
-	contactGroupResponseBytes, err := provider.Remove(session, "ContactGroups/"+contactGroupID, additionalHeaders)
+	contactGroupResponseBytes, err := provider.Remove(ctx, session, "ContactGroups/"+contactGroupID, additionalHeaders)
 	if err != nil {
 		return nil, err
 	}

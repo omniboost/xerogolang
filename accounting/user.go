@@ -1,6 +1,7 @@
 package accounting
 
 import (
+	"context"
 	"encoding/json"
 	"time"
 
@@ -50,7 +51,7 @@ func unmarshalUsers(userResponseBytes []byte) (*Users, error) {
 
 // FindUsersModifiedSince will get all users modified after a specified date
 // additional querystringParameters such as where and order can be added as a map
-func FindUsersModifiedSince(provider xerogolang.IProvider, session goth.Session, modifiedSince time.Time, querystringParameters map[string]string) (*Users, error) {
+func FindUsersModifiedSince(ctx context.Context, provider xerogolang.IProvider, session goth.Session, modifiedSince time.Time, querystringParameters map[string]string) (*Users, error) {
 	additionalHeaders := map[string]string{
 		"Accept": "application/json",
 	}
@@ -59,7 +60,7 @@ func FindUsersModifiedSince(provider xerogolang.IProvider, session goth.Session,
 		additionalHeaders["If-Modified-Since"] = modifiedSince.Format(time.RFC3339)
 	}
 
-	userResponseBytes, err := provider.Find(session, "Users", additionalHeaders, querystringParameters)
+	userResponseBytes, err := provider.Find(ctx, session, "Users", additionalHeaders, querystringParameters)
 	if err != nil {
 		return nil, err
 	}
@@ -69,17 +70,17 @@ func FindUsersModifiedSince(provider xerogolang.IProvider, session goth.Session,
 
 // FindUsers will get all users
 // additional querystringParameters such as where and order can be added as a map
-func FindUsers(provider xerogolang.IProvider, session goth.Session, querystringParameters map[string]string) (*Users, error) {
-	return FindUsersModifiedSince(provider, session, dayZero, querystringParameters)
+func FindUsers(ctx context.Context, provider xerogolang.IProvider, session goth.Session, querystringParameters map[string]string) (*Users, error) {
+	return FindUsersModifiedSince(ctx, provider, session, dayZero, querystringParameters)
 }
 
 // FindUser will get a single user - UserID must be a GUID for a user
-func FindUser(provider xerogolang.IProvider, session goth.Session, userID string) (*Users, error) {
+func FindUser(ctx context.Context, provider xerogolang.IProvider, session goth.Session, userID string) (*Users, error) {
 	additionalHeaders := map[string]string{
 		"Accept": "application/json",
 	}
 
-	userResponseBytes, err := provider.Find(session, "Users/"+userID, additionalHeaders, nil)
+	userResponseBytes, err := provider.Find(ctx, session, "Users/"+userID, additionalHeaders, nil)
 	if err != nil {
 		return nil, err
 	}

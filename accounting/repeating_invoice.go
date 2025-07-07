@@ -1,6 +1,7 @@
 package accounting
 
 import (
+	"context"
 	"encoding/json"
 
 	"github.com/markbates/goth"
@@ -101,12 +102,12 @@ func unmarshalRepeatingInvoices(repeatingInvoiceResponseBytes []byte) (*Repeatin
 
 // FindRepeatingInvoices will get all repeatingInvoices
 // additional querystringParameters such as where and order can be added as a map
-func FindRepeatingInvoices(provider xerogolang.IProvider, session goth.Session, querystringParameters map[string]string) (*RepeatingInvoices, error) {
+func FindRepeatingInvoices(ctx context.Context, provider xerogolang.IProvider, session goth.Session, querystringParameters map[string]string) (*RepeatingInvoices, error) {
 	additionalHeaders := map[string]string{
 		"Accept": "application/json",
 	}
 
-	repeatingInvoiceResponseBytes, err := provider.Find(session, "RepeatingInvoices", additionalHeaders, querystringParameters)
+	repeatingInvoiceResponseBytes, err := provider.Find(ctx, session, "RepeatingInvoices", additionalHeaders, querystringParameters)
 	if err != nil {
 		return nil, err
 	}
@@ -115,12 +116,12 @@ func FindRepeatingInvoices(provider xerogolang.IProvider, session goth.Session, 
 }
 
 // FindRepeatingInvoice will get a single repeatingInvoice - RepeatingInvoiceID must be a GUID for a repeatingInvoice
-func FindRepeatingInvoice(provider xerogolang.IProvider, session goth.Session, repeatingInvoiceID string) (*RepeatingInvoices, error) {
+func FindRepeatingInvoice(ctx context.Context, provider xerogolang.IProvider, session goth.Session, repeatingInvoiceID string) (*RepeatingInvoices, error) {
 	additionalHeaders := map[string]string{
 		"Accept": "application/json",
 	}
 
-	repeatingInvoiceResponseBytes, err := provider.Find(session, "RepeatingInvoices/"+repeatingInvoiceID, additionalHeaders, nil)
+	repeatingInvoiceResponseBytes, err := provider.Find(ctx, session, "RepeatingInvoices/"+repeatingInvoiceID, additionalHeaders, nil)
 	if err != nil {
 		return nil, err
 	}

@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 	"net/http"
 	"net/http/httputil"
@@ -64,7 +64,7 @@ type Oauth2Provider struct {
 }
 
 // Find retrieves the requested data from an endpoint to be unmarshaled into the appropriate data type
-func (p *Oauth2Provider) Find(session goth.Session, endpoint string, additionalHeaders map[string]string, querystringParameters map[string]string) ([]byte, error) {
+func (p *Oauth2Provider) Find(ctx context.Context, session goth.Session, endpoint string, additionalHeaders map[string]string, querystringParameters map[string]string) ([]byte, error) {
 	var querystring string
 	if querystringParameters != nil {
 		for key, value := range querystringParameters {
@@ -75,7 +75,7 @@ func (p *Oauth2Provider) Find(session goth.Session, endpoint string, additionalH
 		querystring = "?" + querystring
 	}
 
-	request, err := http.NewRequest("GET", endpointProfile+endpoint+querystring, nil)
+	request, err := http.NewRequestWithContext(ctx, "GET", endpointProfile+endpoint+querystring, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -84,10 +84,10 @@ func (p *Oauth2Provider) Find(session goth.Session, endpoint string, additionalH
 }
 
 // Create sends data to an endpoint and returns a response to be unmarshaled into the appropriate data type
-func (p *Oauth2Provider) Create(session goth.Session, endpoint string, additionalHeaders map[string]string, body []byte) ([]byte, error) {
+func (p *Oauth2Provider) Create(ctx context.Context, session goth.Session, endpoint string, additionalHeaders map[string]string, body []byte) ([]byte, error) {
 	bodyReader := bytes.NewReader(body)
 
-	request, err := http.NewRequest("PUT", endpointProfile+endpoint, bodyReader)
+	request, err := http.NewRequestWithContext(ctx, "PUT", endpointProfile+endpoint, bodyReader)
 	if err != nil {
 		return nil, err
 	}
@@ -96,10 +96,10 @@ func (p *Oauth2Provider) Create(session goth.Session, endpoint string, additiona
 }
 
 // Update sends data to an endpoint and returns a response to be unmarshaled into the appropriate data type
-func (p *Oauth2Provider) Update(session goth.Session, endpoint string, additionalHeaders map[string]string, body []byte) ([]byte, error) {
+func (p *Oauth2Provider) Update(ctx context.Context, session goth.Session, endpoint string, additionalHeaders map[string]string, body []byte) ([]byte, error) {
 	bodyReader := bytes.NewReader(body)
 
-	request, err := http.NewRequest("POST", endpointProfile+endpoint, bodyReader)
+	request, err := http.NewRequestWithContext(ctx, "POST", endpointProfile+endpoint, bodyReader)
 	if err != nil {
 		return nil, err
 	}
@@ -108,8 +108,8 @@ func (p *Oauth2Provider) Update(session goth.Session, endpoint string, additiona
 }
 
 // Remove deletes the specified data from an endpoint
-func (p *Oauth2Provider) Remove(session goth.Session, endpoint string, additionalHeaders map[string]string) ([]byte, error) {
-	request, err := http.NewRequest("DELETE", endpointProfile+endpoint, nil)
+func (p *Oauth2Provider) Remove(ctx context.Context, session goth.Session, endpoint string, additionalHeaders map[string]string) ([]byte, error) {
+	request, err := http.NewRequestWithContext(ctx, "DELETE", endpointProfile+endpoint, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -177,7 +177,7 @@ func (p *Oauth2Provider) processRequest(request *http.Request, session goth.Sess
 		)
 	}
 
-	responseBytes, err := ioutil.ReadAll(response.Body)
+	responseBytes, err := io.ReadAll(response.Body)
 	if err != nil {
 		return nil, fmt.Errorf("Could not read response: %s", err.Error())
 	}
