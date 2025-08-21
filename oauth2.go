@@ -10,6 +10,7 @@ import (
 	"net/http/httputil"
 	"net/url"
 	"strings"
+	"time"
 
 	"github.com/markbates/goth"
 	"github.com/omniboost/xerogolang/helpers"
@@ -155,7 +156,13 @@ func (p *Oauth2Provider) processRequest(request *http.Request, session goth.Sess
 		ctx = context.WithValue(ctx, oauth2.HTTPClient, p.HTTPClient)
 	}
 
+	// if we come up to the request limit, throttle the requests by sleeping
+	p.sleepUntilRequestLimit()
+
 	response, err = p.Client(ctx).Do(request)
+
+	// register timestamp after request has a response
+	p.RegisterRequestTimestamp(time.Now())
 
 	if p.debug && response != nil {
 		b, err := httputil.DumpResponse(response, true)
@@ -163,6 +170,12 @@ func (p *Oauth2Provider) processRequest(request *http.Request, session goth.Sess
 			return nil, err
 		}
 		log.Println(string(b))
+	}
+
+	// Handle '429 - Too many requests' response
+	if response.StatusCode == 429 {
+		p.sleepUntilRetryAfter(response)
+		return p.processRequest(request, session, additionalHeaders)
 	}
 
 	if err != nil {
@@ -205,4 +218,63 @@ func newOauth2Config(provider *Oauth2Provider, scopes []string) *oauth2.Config {
 		}
 	}
 	return c
+}
+
+func (p *Oauth2Provider) sleepUntilRequestLimit() {
+	// Requestrate is 60r/1m
+	var duration = 60 * time.Second
+	limit := 60
+
+	// check if the map exists
+	if requestTimestamps[p.TenantID] == nil {
+		requestTimestamps[p.TenantID] = &[]time.Time{}
+	}
+
+	// if there are less then 60 registered requests: execute the request
+	// immediately
+	if len(*requestTimestamps[p.TenantID]) < limit {
+		return
+	}
+
+	// is the first item within 60 seconds? If it's > 60 seconds the request can be
+	// executed imediately
+	p.RegisterRequestTimestamp(time.Now())
+	diff := time.Since((*requestTimestamps[p.TenantID])[0])
+	if diff >= (60 * time.Second) {
+		return
+	}
+
+	// Sleep for the time it takes for the first item to be > 60 seconds old
+	// + 1ms to be sure :)
+	time.Sleep((duration) - diff + (1 * time.Millisecond))
+}
+
+func (p *Oauth2Provider) RegisterRequestTimestamp(t time.Time) {
+	if len(*requestTimestamps[p.TenantID]) >= 60 {
+		ts := (*requestTimestamps[p.TenantID])[1:60]
+		requestTimestamps[p.TenantID] = &ts
+	}
+	ts := append(*requestTimestamps[p.TenantID], t)
+	requestTimestamps[p.TenantID] = &ts
+}
+
+func (p *Oauth2Provider) sleepUntilRetryAfter(req *http.Response) error {
+	// Get the "Retry-After" header
+	retryAfter := req.Header.Get("Retry-After")
+
+	// When the "Retry-After" header is not set, continue
+	if retryAfter == "" {
+		return nil
+	}
+
+	// Parse the "Retry-After" header to a duration in seconds
+	diff, err := time.ParseDuration(fmt.Sprintf("%ss", retryAfter))
+	if err != nil {
+		return err
+	}
+
+	// Sleep for the duration of "Retry-After"
+	time.Sleep(diff)
+
+	return nil
 }

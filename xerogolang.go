@@ -36,6 +36,8 @@ var (
 	//You only need this for private and partner Applications
 	//more details here: https://developer.xero.com/documentation/api-guides/create-publicprivate-key
 	privateKeyFilePath = os.Getenv("XERO_PRIVATE_KEY_PATH")
+
+	requestTimestamps = make(map[string]*[]time.Time)
 )
 
 type IProvider interface {
