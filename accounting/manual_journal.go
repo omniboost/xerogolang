@@ -44,6 +44,8 @@ type ManualJournal struct {
 
 	// The Xero identifier for a Manual Journal
 	ManualJournalID string `json:"ManualJournalID,omitempty" xml:"ManualJournalID,omitempty"`
+
+	Warnings Warnings `json:"Warnings,omitempty" xml:"-"`
 }
 
 // ManualJournals is a collection of ManualJournals
