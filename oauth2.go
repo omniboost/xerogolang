@@ -238,7 +238,6 @@ func (p *Oauth2Provider) sleepUntilRequestLimit() {
 
 	// is the first item within 60 seconds? If it's > 60 seconds the request can be
 	// executed imediately
-	p.RegisterRequestTimestamp(time.Now())
 	diff := time.Since((*requestTimestamps[p.TenantID])[0])
 	if diff >= (60 * time.Second) {
 		return
