@@ -173,7 +173,7 @@ func (p *Oauth2Provider) processRequest(request *http.Request, session goth.Sess
 	}
 
 	// Handle '429 - Too many requests' response
-	if response.StatusCode == 429 {
+	if response != nil && response.StatusCode == 429 {
 		p.sleepUntilRetryAfter(response)
 		return p.processRequest(request, session, additionalHeaders)
 	}
