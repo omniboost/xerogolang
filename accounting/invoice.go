@@ -47,7 +47,7 @@ type Invoice struct {
 	CurrencyCode string `json:"CurrencyCode,omitempty" xml:"CurrencyCode,omitempty"`
 
 	// The currency rate for a multicurrency invoice. If no rate is specified, the XE.com day rate is used. (max length = [18].[6])
-	CurrencyRate decimal.Decimal `json:"CurrencyRate,omitempty" xml:"CurrencyRate,omitempty"`
+	CurrencyRate decimal.Decimal `json:"CurrencyRate,omitempty,omitzero" xml:"CurrencyRate,omitempty"`
 
 	// See Invoice Status Codes
 	Status string `json:"Status,omitempty" xml:"Status,omitempty"`
@@ -62,16 +62,16 @@ type Invoice struct {
 	PlannedPaymentDate string `json:"PlannedPaymentDate,omitempty" xml:"PlannedPaymentDate,omitempty"`
 
 	// Total of invoice excluding taxes
-	SubTotal decimal.Decimal `json:"SubTotal,omitempty" xml:"SubTotal,omitempty"`
+	SubTotal decimal.Decimal `json:"SubTotal,omitempty,omitzero" xml:"SubTotal,omitempty"`
 
 	// Total tax on invoice
-	TotalTax decimal.Decimal `json:"TotalTax,omitempty" xml:"TotalTax,omitempty"`
+	TotalTax decimal.Decimal `json:"TotalTax,omitempty,omitzero" xml:"TotalTax,omitempty"`
 
 	// Total of Invoice tax inclusive (i.e. SubTotal + TotalTax). This will be ignored if it doesn’t equal the sum of the LineAmounts
-	Total decimal.Decimal `json:"Total,omitempty" xml:"Total,omitempty"`
+	Total decimal.Decimal `json:"Total,omitempty,omitzero" xml:"Total,omitempty"`
 
 	// Total of discounts applied on the invoice line items
-	TotalDiscount decimal.Decimal `json:"TotalDiscount,omitempty" xml:"-"`
+	TotalDiscount decimal.Decimal `json:"TotalDiscount,omitempty,omitzero" xml:"-"`
 
 	// Xero generated unique identifier for invoice
 	InvoiceID string `json:"InvoiceID,omitempty" xml:"InvoiceID,omitempty"`
@@ -89,16 +89,16 @@ type Invoice struct {
 	Overpayments *[]Overpayment `json:"Overpayments,omitempty" xml:"-"`
 
 	// Amount remaining to be paid on invoice
-	AmountDue decimal.Decimal `json:"AmountDue,omitempty" xml:"-"`
+	AmountDue decimal.Decimal `json:"AmountDue,omitempty,omitzero" xml:"-"`
 
 	// Sum of payments received for invoice
-	AmountPaid decimal.Decimal `json:"AmountPaid,omitempty" xml:"-"`
+	AmountPaid decimal.Decimal `json:"AmountPaid,omitempty,omitzero" xml:"-"`
 
 	// The date the invoice was fully paid. Only returned on fully paid invoices
 	FullyPaidOnDate string `json:"FullyPaidOnDate,omitempty" xml:"-"`
 
 	// Sum of all credit notes, over-payments and pre-payments applied to invoice
-	AmountCredited decimal.Decimal `json:"AmountCredited,omitempty" xml:"-"`
+	AmountCredited decimal.Decimal `json:"AmountCredited,omitempty,omitzero" xml:"-"`
 
 	// Last modified date UTC format
 	UpdatedDateUTC string `json:"UpdatedDateUTC,omitempty" xml:"-"`
